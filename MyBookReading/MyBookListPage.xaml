@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:local="clr-namespace:MyBookReading;assembly=MyBookReading"
     x:Class="MyBookReading.MyBookListPage"
     Title="配列でListView">
 	<ContentPage.Content>
@@ -24,9 +25,8 @@
                                         TextColor="Navy"
                                         FontSize="12"
                                         HorizontalOptions="Start" />
-                                <MyBookReading.RatingStars Rating="{Binding Rating}"
-                                             Reviews="{Binding Reviews}"/>
-                                
+                                <local:RatingStars Rating="{Binding Rating}"
+                                                    Reviews="{Binding Reviews}"/>
                             </StackLayout>
                         </StackLayout>
                     </ViewCell>

@@ -10,7 +10,7 @@ namespace MyBookReading
         {
 			InitializeComponent();
 
-            const string url = "http://xamarin.com/images/index/ide-xamarin-studio.png";
+            const string url = "https://www.xamarin.com/content/images/pages/branding/assets/xamagon.png";
             var books = new List<Book>
             {
                 new Book { Title = "夏への扉", Author = "ロバート・A・ハインライン", ImageUrl = url, Reviews=100, Rating=8},
