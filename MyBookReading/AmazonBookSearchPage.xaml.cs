@@ -11,16 +11,18 @@ namespace MyBookReading
 {
     public partial class AmazonBookSearchPage : ContentPage
     {
-		const string ACCESS_KEY = "MyAccessKey";
-		const string SECRET_KEY = "MySecretKey";
-		const string TAG_IT = "MyTag";
+        private AmazonCresidentials amazonKey;
         const string END_POINT_JP = "ecs.amazonaws.jp"; 
 
 		Entry bookSearchKeyword;
 		Label bookSearchResult;
-		public AmazonBookSearchPage()
+		public AmazonBookSearchPage(AmazonCresidentials key)
         {
+            amazonKey = key;
+
             InitializeComponent();
+
+
 			bookSearchKeyword = new Entry
 			{
 				Keyboard = Keyboard.Email,
@@ -77,11 +79,11 @@ namespace MyBookReading
 			timestamp = timestamp.Replace(":", "%3A");
 
 			string keyWord = "chopin";
-			string toBeSigned = "GET\nwebservices.amazon.com\n/onca/xml\nAWSAccessKeyId=AKIAIADXL5CJRNH3Y67Q&AssociateTag=localhost012-20&Condition=All&Keywords=" + keyWord + "&Operation=ItemSearch&ResponseGroup=ItemAttributes&SearchIndex=All&Service=AWSECommerceService&Timestamp=" + timestamp + "&Version=2011-08-01";
+            string toBeSigned = "GET\nwebservices.amazon.com\n/onca/xml\nAWSAccessKeyId=" + amazonKey.access_key_id + "&AssociateTag=" + amazonKey.associate_tag +  "&Condition=All&Keywords=" + keyWord + "&Operation=ItemSearch&ResponseGroup=ItemAttributes&SearchIndex=All&Service=AWSECommerceService&Timestamp=" + timestamp + "&Version=2011-08-01";
 
 			//string signedString = signString(toBeSigned);
 
-			//string finalUrl = "http://webservices.amazon.com/onca/xml?AWSAccessKeyId=AKIAIADXL5CJRNH3Y67Q&AssociateTag=localhost012-20&Condition=All&Keywords=" + keyWord + "&Operation=ItemSearch&ResponseGroup=ItemAttributes&SearchIndex=All&Service=AWSECommerceService&Timestamp=" + timestamp + "&Version=2011-08-01&Signature=" + signedString;
+            //string finalUrl = "http://webservices.amazon.com/onca/xml?AWSAccessKeyId=" + amazonKey.access_key_id + "&AssociateTag=" + amazonKey.associate_tag +  "&Condition=All&Keywords=" + keyWord + "&Operation=ItemSearch&ResponseGroup=ItemAttributes&SearchIndex=All&Service=AWSECommerceService&Timestamp=" + timestamp + "&Version=2011-08-01&Signature=" + signedString;
             //bookSearchResult.Text = finalUrl;
 
 		}

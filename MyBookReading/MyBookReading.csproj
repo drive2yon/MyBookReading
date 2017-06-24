@@ -48,7 +48,7 @@
     <EmbeddedResource Include="Assets\rating_star_off%402x.png" />
     <EmbeddedResource Include="Assets\rating_star_on.png" />
     <EmbeddedResource Include="Assets\rating_star_on%402x.png" />
-    <EmbeddedResource Include="Assets\TestCredentials.json" />
+    <EmbeddedResource Include="Assets\AmazonCredentials.json" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="App.xaml.cs">
@@ -71,6 +71,7 @@
     <Compile Include="RatingStars.xaml.cs">
       <DependentUpon>RatingStars.xaml</DependentUpon>
     </Compile>
+    <Compile Include="AmazonCresidentials.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Xamarin.Forms.Core">
