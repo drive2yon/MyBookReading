@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Net;
+using System.Reflection;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 using Newtonsoft.Json;
@@ -309,9 +310,9 @@ namespace MyBookReading
 
         Entry bookSearchKeyword;
         Label bookSearchResult;
-        public AmazonBookSearchPage(AmazonCresidentials key)
+        public AmazonBookSearchPage()
         {
-            amazonKey = key;
+            amazonKey = LoadCredentialsFile();
 
             InitializeComponent();
 
@@ -365,6 +366,21 @@ namespace MyBookReading
             };
         }
 
+		private AmazonCresidentials LoadCredentialsFile()
+		{
+			//AmazonCredentials.json sample
+			//{"associate_tag":"XXXXX","access_key_id":"XXXXX","secret_access_key":"XXXXX"}
+
+			var assembly = typeof(AmazonBookSearch).GetTypeInfo().Assembly;
+			Stream stream = assembly.GetManifestResourceStream("MyBookReading.Assets.AmazonCredentials.json");
+			string text = "";
+			using (var reader = new System.IO.StreamReader(stream))
+			{
+				text = reader.ReadToEnd();
+			}
+			AmazonCresidentials amazon = JsonConvert.DeserializeObject<AmazonCresidentials>(text);
+			return amazon;
+		}
         private async void OnButtonClicked(object sender, EventArgs e)
         {
             string url = makeRequestURL("xamarin");

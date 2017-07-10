@@ -49,6 +49,9 @@
     <EmbeddedResource Include="Assets\rating_star_on.png" />
     <EmbeddedResource Include="Assets\rating_star_on%402x.png" />
     <EmbeddedResource Include="Assets\AmazonCredentials.json" />
+    <EmbeddedResource Include="SearchBookResult.xaml">
+      <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
+    </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="App.xaml.cs">
@@ -73,6 +76,10 @@
     </Compile>
     <Compile Include="AmazonCresidentials.cs" />
     <Compile Include="HmacSha256.cs" />
+    <Compile Include="SearchBookResult.xaml.cs">
+      <DependentUpon>SearchBookResult.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="AmazonBookSearch.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Xamarin.Forms.Core">
@@ -92,6 +99,7 @@
     <Reference Include="crypto">
       <HintPath>..\packages\Portable.BouncyCastle-Signed.1.7.0.2\lib\portable-net45+dnxcore50+wp80+win+wpa81+MonoTouch10+MonoAndroid10+xamarinmac20+xamarinios10\crypto.dll</HintPath>
     </Reference>
+    <Reference Include="System.Runtime.Serialization" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

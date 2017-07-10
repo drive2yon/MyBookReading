@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
+using System.Reflection;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Xamarin.Forms;
 
@@ -9,87 +11,82 @@ namespace MyBookReading
 {
     public partial class BookSearchPage : ContentPage
     {
-        Entry bookSearchKeyword;
-        Label bookSearchResult;
+        AmazonCresidentials amazonKey;
+        private bool bSearchTitle;
         public BookSearchPage()
         {
+            amazonKey = LoadCredentialsFile();
             InitializeComponent();
-
-            bookSearchKeyword = new Entry
-            {
-                Keyboard = Keyboard.Email,
-                Placeholder = "Enter book keyword",
-                VerticalOptions = LayoutOptions.CenterAndExpand
-            };
-
-			Button button = new Button
-			{
-				Text = "Click Me!",
-				Font = Font.SystemFontOfSize(NamedSize.Large),
-				BorderWidth = 1,
-				HorizontalOptions = LayoutOptions.Center,
-				VerticalOptions = LayoutOptions.CenterAndExpand
-			};
-            button.Clicked += OnButtonClicked;
-
-			bookSearchResult = new Label
-			{
-				Text =
-					"Xamarin.Forms is a cross-platform natively " +
-					"backed UI toolkit abstraction that allows " +
-					"developers to easily create user interfaces " +
-					"that can be shared across Android, iOS, and " +
-					"Windows Phone.",
-
-				FontSize = Device.GetNamedSize(NamedSize.Large, typeof(Label)),
-				VerticalOptions = LayoutOptions.CenterAndExpand
-			};
-
-            ScrollView scrollView = new ScrollView
-            {
-                VerticalOptions = LayoutOptions.FillAndExpand,
-                Content = bookSearchResult
-			};
-
-
-
-			this.Content = new StackLayout
-			{
-				Children =
-				{
-                    bookSearchKeyword,
-					button,
-                    scrollView
-        		}
-			};
+			this.Appearing += (object sender, System.EventArgs e) => this.entryTitle.Focus();
 		}
+
+		void Handle_SearchClicked(object sender, System.EventArgs e)
+		{
+            string keyword;
+            if(bSearchTitle){
+                keyword = this.entryTitle.Text;
+            }else{
+                keyword = this.entryAuthor.Text;
+            }
+
+            if(keyword.Length == 0)
+            {
+                DisplayAlert("検索するには？", "１文字以上入力してください", "OK");
+                return;
+            }
+            Navigation.PushAsync( new SearchBookResult(keyword, amazonKey) );
+		}
+
+        void Handle_FocusedTitle(object sender, Xamarin.Forms.FocusEventArgs e)
+        {
+            this.labelTitle.TextColor = Color.Blue;
+            this.labelTitle.FontAttributes = FontAttributes.Bold;
+            this.labelAuthor.TextColor = Color.Default;
+			this.labelAuthor.FontAttributes = FontAttributes.None;
+            bSearchTitle = true;
+		}
+
+		void Handle_FocusedAuthor(object sender, Xamarin.Forms.FocusEventArgs e)
+		{
+            this.labelTitle.TextColor = Color.Default;
+			this.labelTitle.FontAttributes = FontAttributes.None;
+			this.labelAuthor.TextColor = Color.Blue;
+			this.labelAuthor.FontAttributes = FontAttributes.Bold;
+            bSearchTitle = false;
+		}
+
+		private AmazonCresidentials LoadCredentialsFile()
+		{
+			//AmazonCredentials.json sample
+			//{"associate_tag":"XXXXX","access_key_id":"XXXXX","secret_access_key":"XXXXX"}
+
+			var assembly = typeof(BookSearchPage).GetTypeInfo().Assembly;
+			Stream stream = assembly.GetManifestResourceStream("MyBookReading.Assets.AmazonCredentials.json");
+			string text = "";
+			using (var reader = new System.IO.StreamReader(stream))
+			{
+				text = reader.ReadToEnd();
+			}
+			AmazonCresidentials amazon = JsonConvert.DeserializeObject<AmazonCresidentials>(text);
+			return amazon;
+		}
+
 
 		private async void OnButtonClicked(object sender, EventArgs e)
 		{
-			//string GoogleBooksApiKey = "Your Google Books API Key here";
-            //maxResults is set to 20 so that we only get a small list
-            //            WebRequest request = WebRequest.Create("https://www.googleapis.com/books/v1/volumes?q=" + bookSearchKeyword.Text);
-            //			WebResponse response = request.GetResponse();
-            string url = "https://www.googleapis.com/books/v1/volumes?q=" + bookSearchKeyword.Text;
-			HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
-			HttpWebResponse response = (HttpWebResponse)await request.GetResponseAsync(); // (note: await added, method call changed to GetResponseAsync()
-
-
-			// Display the status.
-			//Console.WriteLine(((HttpWebResponse)response).StatusDescription);
-			// Get the stream containing content returned by the server.
-			Stream dataStream = response.GetResponseStream();
-			// Open the stream using a StreamReader for easy access.
-			StreamReader reader = new StreamReader(dataStream);
-			// Read the content.
-			string responseFromServer = reader.ReadToEnd();
+   //         string url = "https://www.googleapis.com/books/v1/volumes?q=" + searchTitleEntry.Text;
+			//HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
+			//HttpWebResponse response = (HttpWebResponse)await request.GetResponseAsync(); // (note: await added, method call changed to GetResponseAsync()
+			//Stream dataStream = response.GetResponseStream();
+			//StreamReader reader = new StreamReader(dataStream);
+			//string responseFromServer = reader.ReadToEnd();
 
             // Clean up the streams and the response.
             //reader.Close();
             //response.Close();
             //response.Close();
-            string authorList = googleBooksJsonToText(responseFromServer);
-            bookSearchResult.Text = authorList;
+            //string authorList = googleBooksJsonToText(responseFromServer);
+            //bookSearchResult.Text = authorList;
             //bookSearchResult.Text = responseFromServer;
 		}
 
