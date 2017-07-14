@@ -129,10 +129,7 @@ namespace MyBookReading
                                                 else if( elemItem.Name.LocalName == "MediumImage" )
                                                 {
 													book.MediumImageURL = elemImage.Value;
-                                                    if (book.ImageUrl == null)
-                                                    {
-                                                        book.ImageUrl = elemImage.Value;
-                                                    }
+                                                    book.ImageUrl = elemImage.Value;
                                                 }
                                                 else if( elemItem.Name.LocalName == "LargeImage" )
                                                 {
