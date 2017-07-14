@@ -14,8 +14,6 @@
                     <ViewCell>
                         <StackLayout Orientation="Horizontal" Padding="5">
                             <Image Source="{Binding ImageUrl}"   
-                                    WidthRequest="100"
-                                    BackgroundColor="Silver"
                                     HorizontalOptions="Start" />
                             <StackLayout Orientation="Vertical" Padding="5">
                                 <Label Text="{Binding Title}"

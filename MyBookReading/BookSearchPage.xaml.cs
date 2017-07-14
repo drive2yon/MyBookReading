@@ -29,7 +29,7 @@ namespace MyBookReading
                 keyword = this.entryAuthor.Text;
             }
 
-            if(keyword.Length == 0)
+            if( keyword==null || keyword.Length == 0)
             {
                 DisplayAlert("検索するには？", "１文字以上入力してください", "OK");
                 return;

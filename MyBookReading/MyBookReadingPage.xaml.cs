@@ -26,11 +26,6 @@ namespace MyBookReading
                 BarBackgroundColor = Color.Aquamarine,
             });
 
-            this.Children.Add(new AmazonBookSearchPage()
-            {
-                Title="AmazonSearch",
-            });
-
             myBookListPage.Title = "MyBook";
             bookSearchPage.Title = "BookSearch";
 
