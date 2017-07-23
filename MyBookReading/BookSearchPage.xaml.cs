@@ -22,11 +22,14 @@ namespace MyBookReading
 		async void Handle_SearchClicked(object sender, System.EventArgs e)
 		{
             string keyword;
+            AmazonBookSearch.SearchType searchType;
             if(bSearchTitle){
                 keyword = this.entryTitle.Text;
+                searchType = AmazonBookSearch.SearchType.SearchBook_ByTitle;
             }else{
                 keyword = this.entryAuthor.Text;
-            }
+                searchType = AmazonBookSearch.SearchType.SearchBook_ByAuthor;
+			}
 
             if( keyword==null || keyword.Length == 0)
             {
@@ -37,7 +40,7 @@ namespace MyBookReading
 			IsBusy = true;
 			AmazonBookSearch search = new AmazonBookSearch(amazonKey);
     		ObservableCollection<Book> books = new ObservableCollection<Book>();
-            bool result = await search.Search(keyword, books);
+            bool result = await search.Search(searchType, keyword, books);
 			IsBusy = false;
             if(!result)
             {

@@ -17,19 +17,26 @@ namespace MyBookReading
 		private const string DESTINATION = "ecs.amazonaws.jp";
 		const string END_POINT_JP = "ecs.amazonaws.jp";
 
+        public enum SearchType
+        {
+            SearchBook_ByTitle,
+            SearchBook_ByAuthor,
+        }
+
         public AmazonBookSearch(AmazonCresidentials cresidentials)
         {
             amazonKey = cresidentials;
         }
 
-        public async Task<bool> Search(string keyword, ObservableCollection<Book> booksResult)
+        public async Task<bool> Search(SearchType searchType, string keyword, ObservableCollection<Book> booksResult)
         {
-            string url = makeRequestURL(keyword);
-            int retryCount = 0;
+            string url = makeRequestURL(searchType, keyword);
+			System.Diagnostics.Debug.WriteLine(url);
+			int retryCount = 0;
 			return await VisitUrl(url, booksResult, retryCount);
 		}
 
-		private string makeRequestURL(string keyWord)
+		private string makeRequestURL(SearchType searchType, string keyWord)
 		{
             keyWord = System.Net.WebUtility.UrlEncode(keyWord);
 
@@ -37,28 +44,53 @@ namespace MyBookReading
 			string strTime = now.ToString("yyyy-MM-ddTHH:mm:ss.000Z"); // IS0 8601
 			strTime = strTime.Replace(":", "%3A");
 
+			System.Text.StringBuilder strBuilder = new System.Text.StringBuilder();
+
 			string PARAM_TIME_STAMP = "&Timestamp=" + strTime.Replace(":", "%3A");
 			string PARAM_AWSKEY_AND_TAG = "AWSAccessKeyId=" + amazonKey.access_key_id + "&AssociateTag=" + amazonKey.associate_tag;
-			string PARAM_KEYWORD = "&Keywords=" + keyWord;
-			const string PARAM_OPERATION = "&Operation=ItemSearch&ResponseGroup=Images%2CSmall&SearchIndex=Books&Service=AWSECommerceService";
-			const string PARAM_VERSION = "&Version=2011-08-01";
+            string PARAM_KEYWORD;
+            if(searchType == SearchType.SearchBook_ByTitle)
+            {
+				PARAM_KEYWORD = "&Title=" + keyWord;
+				const string PARAM_OPERATION = "&Operation=ItemSearch&ResponseGroup=Images%2CSmall&SearchIndex=Books&Service=AWSECommerceService";
+				const string PARAM_VERSION = "&Version=2011-08-01";
 
-			System.Text.StringBuilder strBuilder = new System.Text.StringBuilder();
-			strBuilder.Append("GET\n")
-					  .Append(MARKET_PLACE_URL + "\n")
-					  .Append("/onca/xml\n")
-					  .Append(PARAM_AWSKEY_AND_TAG + PARAM_KEYWORD + PARAM_OPERATION + PARAM_TIME_STAMP + PARAM_VERSION);
-			string toBeSigned = strBuilder.ToString();
-			string signedString = signString(toBeSigned);
+				strBuilder.Append("GET\n")
+						  .Append(MARKET_PLACE_URL + "\n")
+						  .Append("/onca/xml\n")
+						  .Append(PARAM_AWSKEY_AND_TAG + PARAM_OPERATION + PARAM_TIME_STAMP + PARAM_KEYWORD + PARAM_VERSION);
+				string toBeSigned = strBuilder.ToString();
+				string signedString = signString(toBeSigned);
 
-			string requestUrl = "http://" + MARKET_PLACE_URL + "/onca/xml?" + PARAM_AWSKEY_AND_TAG + PARAM_KEYWORD + PARAM_OPERATION + PARAM_TIME_STAMP + PARAM_VERSION + "&Signature=" + signedString;
-			strBuilder.Clear();
-			strBuilder.Append("http://")
-					  .Append(MARKET_PLACE_URL)
-					  .Append("/onca/xml?")
-					  .Append(PARAM_AWSKEY_AND_TAG + PARAM_KEYWORD + PARAM_OPERATION + PARAM_TIME_STAMP + PARAM_VERSION)
-					  .Append("&Signature=" + signedString);
-			bool test = strBuilder.ToString().Equals(requestUrl);
+				strBuilder.Clear();
+				strBuilder.Append("http://")
+						  .Append(MARKET_PLACE_URL)
+						  .Append("/onca/xml?")
+						  .Append(PARAM_AWSKEY_AND_TAG + PARAM_OPERATION + PARAM_TIME_STAMP + PARAM_KEYWORD + PARAM_VERSION)
+						  .Append("&Signature=" + signedString);
+			}
+            else
+            {
+				PARAM_KEYWORD = "&Author=" + keyWord;
+				const string PARAM_OPERATION = "&Operation=ItemSearch&ResponseGroup=Images%2CSmall&SearchIndex=Books&Service=AWSECommerceService";
+				const string PARAM_VERSION = "&Version=2011-08-01";
+
+				strBuilder.Append("GET\n")
+						  .Append(MARKET_PLACE_URL + "\n")
+						  .Append("/onca/xml\n")
+						  .Append(PARAM_AWSKEY_AND_TAG + PARAM_KEYWORD + PARAM_OPERATION + PARAM_TIME_STAMP + PARAM_VERSION);
+				string toBeSigned = strBuilder.ToString();
+				string signedString = signString(toBeSigned);
+
+				strBuilder.Clear();
+				strBuilder.Append("http://")
+						  .Append(MARKET_PLACE_URL)
+						  .Append("/onca/xml?")
+						  .Append(PARAM_AWSKEY_AND_TAG + PARAM_KEYWORD + PARAM_OPERATION + PARAM_TIME_STAMP + PARAM_VERSION)
+						  .Append("&Signature=" + signedString);
+			}
+			System.Diagnostics.Debug.WriteLine(PARAM_KEYWORD);
+
 			return strBuilder.ToString();
 		}
 
