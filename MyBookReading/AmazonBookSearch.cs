@@ -1,10 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Net;
+using System.Threading.Tasks;
 using System.Xml.Linq;
-using Newtonsoft.Json;
 
 namespace MyBookReading
 {
@@ -23,10 +22,11 @@ namespace MyBookReading
             amazonKey = cresidentials;
         }
 
-		public void Search(string keyword, ObservableCollection<Book> booksResult)
-		{
-			string url = makeRequestURL(keyword);
-			VisitUrl(url, booksResult);
+        public async Task<bool> Search(string keyword, ObservableCollection<Book> booksResult)
+        {
+            string url = makeRequestURL(keyword);
+            int retryCount = 0;
+			return await VisitUrl(url, booksResult, retryCount);
 		}
 
 		private string makeRequestURL(string keyWord)
@@ -71,102 +71,108 @@ namespace MyBookReading
 			return signature;
 		}
 
-		protected static async void VisitUrl(string url, ObservableCollection<Book> booksResult)
+        protected void parseAmazonResponceXML(XDocument doc, ObservableCollection<Book> booksResult)
+        {
+			foreach (XElement elemRoot in doc.Root.Elements())
+			{
+				if (elemRoot.Name.LocalName == "Items")
+				{
+					foreach (XElement elemItems in elemRoot.Elements())
+					{
+						if (elemItems.Name.LocalName == "TotalResults")
+						{
+							//System.Diagnostics.Debug.WriteLine(elemItems.Name.LocalName + " Value=" + elemItems.Value );
+						}
+						else if (elemItems.Name.LocalName == "TotalPages")
+						{
+							//System.Diagnostics.Debug.WriteLine(elemItems.Name.LocalName + " Value=" + elemItems.Value);
+						}
+						else if (elemItems.Name.LocalName == "MoreSearchResultsUrl")
+						{
+							//System.Diagnostics.Debug.WriteLine(elemItems.Name.LocalName + " Value=" + elemItems.Value);
+						}
+						else if (elemItems.Name.LocalName == "Item")
+						{
+							Book book = new Book();
+							foreach (XElement elemItem in elemItems.Elements())
+							{
+								if (elemItem.Name.LocalName == "ASIN")
+								{
+									book.ASIN = elemItem.Value;
+								}
+								else if (elemItem.Name.LocalName == "DetailPageURL")
+								{
+									book.AmazonDetailPageURL = elemItem.Value;
+								}
+								else if (elemItem.Name.LocalName == "SmallImage" ||
+										 elemItem.Name.LocalName == "MediumImage" ||
+										 elemItem.Name.LocalName == "LargeImage")
+								{
+									foreach (XElement elemImage in elemItem.Elements())
+									{
+										if (elemImage.Name.LocalName == "URL")
+										{
+											if (elemItem.Name.LocalName == "SmallImage")
+											{
+												book.SmallImageURL = elemImage.Value;
+												book.ImageUrl = elemImage.Value;
+											}
+											else if (elemItem.Name.LocalName == "MediumImage")
+											{
+												book.MediumImageURL = elemImage.Value;
+												book.ImageUrl = elemImage.Value;
+											}
+											else if (elemItem.Name.LocalName == "LargeImage")
+											{
+												book.LargeImageURL = elemImage.Value;
+												if (book.ImageUrl == null)
+												{
+													book.ImageUrl = elemImage.Value;
+												}
+											}
+											break;
+										}
+									}
+								}
+								else if (elemItem.Name.LocalName == "ItemAttributes")
+								{
+									foreach (XElement elemItemAttributes in elemItem.Elements())
+									{
+										if (elemItemAttributes.Name.LocalName == "Author")
+										{
+											book.Author = elemItemAttributes.Value;
+										}
+										else if (elemItemAttributes.Name.LocalName == "Manufacturer")
+										{
+											book.Publisher = elemItemAttributes.Value;
+										}
+										else if (elemItemAttributes.Name.LocalName == "Title")
+										{
+											book.Title = elemItemAttributes.Value;
+										}
+									}
+								}
+							}
+							booksResult.Add(book);
+						}
+					}
+				}
+			}            
+        }
+
+		protected async System.Threading.Tasks.Task<bool> VisitUrl(string url, ObservableCollection<Book> booksResult, int retryCount)
 		{
+            bool ret = false;
             try
             {
                 WebRequest request = WebRequest.Create(url);
-                WebResponse response = await request.GetResponseAsync();
+				WebResponse response = await request.GetResponseAsync();
 
-                Stream st = response.GetResponseStream();
-                StreamReader sr = new StreamReader(st);
+				Stream st = response.GetResponseStream();
+				StreamReader sr = new StreamReader(st);
 
-                XDocument doc = XDocument.Load(sr);
-                foreach( XElement elemRoot in doc.Root.Elements() )
-                {
-					if(elemRoot.Name.LocalName == "Items")
-                    {
-                        foreach (XElement elemItems in elemRoot.Elements())
-                        {
-                            if (elemItems.Name.LocalName == "TotalResults")
-                            {
-								//System.Diagnostics.Debug.WriteLine(elemItems.Name.LocalName + " Value=" + elemItems.Value );
-							}
-                            else if (elemItems.Name.LocalName == "TotalPages")
-                            {
-								//System.Diagnostics.Debug.WriteLine(elemItems.Name.LocalName + " Value=" + elemItems.Value);
-							}
-                            else if (elemItems.Name.LocalName == "MoreSearchResultsUrl")
-                            {
-								//System.Diagnostics.Debug.WriteLine(elemItems.Name.LocalName + " Value=" + elemItems.Value);
-							}
-							else if (elemItems.Name.LocalName == "Item")
-							{
-                                Book book = new Book();
-								foreach (XElement elemItem in elemItems.Elements())
-                                {
-                                    if (elemItem.Name.LocalName == "ASIN")
-                                    {
-                                        book.ASIN = elemItem.Value;
-                                    }
-                                    else if (elemItem.Name.LocalName == "DetailPageURL")
-                                    {
-                                        book.AmazonDetailPageURL = elemItem.Value;
-                                    }
-                                    else if (elemItem.Name.LocalName == "SmallImage" ||
-                                             elemItem.Name.LocalName == "MediumImage" ||
-                                             elemItem.Name.LocalName == "LargeImage")
-                                    {
-                                        foreach (XElement elemImage in elemItem.Elements())
-                                        {
-                                            if (elemImage.Name.LocalName == "URL")
-                                            {
-                                                if (elemItem.Name.LocalName == "SmallImage" )
-                                                {
-													book.SmallImageURL = elemImage.Value;
-                                                    book.ImageUrl = elemImage.Value;
-												}
-                                                else if( elemItem.Name.LocalName == "MediumImage" )
-                                                {
-													book.MediumImageURL = elemImage.Value;
-                                                    book.ImageUrl = elemImage.Value;
-                                                }
-                                                else if( elemItem.Name.LocalName == "LargeImage" )
-                                                {
-													book.LargeImageURL = elemImage.Value;
-                                                    if(book.ImageUrl == null)
-                                                    {
-														book.ImageUrl = elemImage.Value;
-													}
-												}
-                                                break;
-                                            }
-                                        }
-                                    }
-									else if (elemItem.Name.LocalName == "ItemAttributes")
-									{
-                                        foreach (XElement elemItemAttributes in elemItem.Elements())
-                                        {
-                                            if (elemItemAttributes.Name.LocalName == "Author")
-                                            {
-                                                book.Author = elemItemAttributes.Value;
-                                            }
-                                            else if (elemItemAttributes.Name.LocalName == "Manufacturer")
-                                            {
-                                                book.Publisher = elemItemAttributes.Value;
-                                            }
-                                            else if (elemItemAttributes.Name.LocalName == "Title")
-                                            {
-                                                book.Title = elemItemAttributes.Value;
-                                            }
-                                        }
-									}
-								}
-                                booksResult.Add(book);
-							}
-                        }
-                    }
-				}
+				parseAmazonResponceXML(XDocument.Load(sr), booksResult);
+				ret = true;
 			}
             catch (Exception exception)
             {
@@ -174,12 +180,25 @@ namespace MyBookReading
                 {
                     HttpWebResponse response = ((System.Net.WebException)exception).Response as HttpWebResponse;
 					HttpStatusCode code = (response == null) ? HttpStatusCode.InternalServerError : response.StatusCode;
-                    System.Diagnostics.Debug.WriteLine(exception.ToString());
-					//DoErrorHandling();
+					System.Diagnostics.Debug.WriteLine("retryCount=" + retryCount.ToString());
+					System.Diagnostics.Debug.WriteLine(exception.ToString());
+
+                    const int RETRY_MAX = 3;
+                    if(retryCount >= RETRY_MAX)
+                    {
+                        ret = false;
+                    }
+                    else
+                    {
+						retryCount++;
+						ret = await VisitUrl(url, booksResult, retryCount);
+					}
                 }else{
 					System.Diagnostics.Debug.WriteLine(exception.ToString());
+                    ret = false;
 				}
             }
+            return ret;
 		}
     }
 }

@@ -1,7 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.IO;
-using System.Net;
 using System.Reflection;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -20,7 +19,7 @@ namespace MyBookReading
 			this.Appearing += (object sender, System.EventArgs e) => this.entryTitle.Focus();
 		}
 
-		void Handle_SearchClicked(object sender, System.EventArgs e)
+		async void Handle_SearchClicked(object sender, System.EventArgs e)
 		{
             string keyword;
             if(bSearchTitle){
@@ -31,10 +30,26 @@ namespace MyBookReading
 
             if( keyword==null || keyword.Length == 0)
             {
-                DisplayAlert("検索するには？", "１文字以上入力してください", "OK");
+                await DisplayAlert("検索するには？", "１文字以上入力してください", "OK");
                 return;
             }
-            Navigation.PushAsync( new SearchBookResult(keyword, amazonKey) );
+
+			IsBusy = true;
+			AmazonBookSearch search = new AmazonBookSearch(amazonKey);
+    		ObservableCollection<Book> books = new ObservableCollection<Book>();
+            bool result = await search.Search(keyword, books);
+			IsBusy = false;
+            if(!result)
+            {
+				await DisplayAlert("検索に失敗", "しばらくしてから検索してください", "OK");
+                return;
+            }
+            else
+            {
+				await DisplayAlert("検索に成功", "やったね", "OK");
+				await Navigation.PushAsync( new SearchBookResult(keyword, amazonKey, books) );
+				return;
+			}
 		}
 
         void Handle_FocusedTitle(object sender, Xamarin.Forms.FocusEventArgs e)
@@ -43,6 +58,7 @@ namespace MyBookReading
             this.labelTitle.FontAttributes = FontAttributes.Bold;
             this.labelAuthor.TextColor = Color.Default;
 			this.labelAuthor.FontAttributes = FontAttributes.None;
+            this.btnSearch.Text = "本のタイトルで検索";
             bSearchTitle = true;
 		}
 
@@ -52,7 +68,8 @@ namespace MyBookReading
 			this.labelTitle.FontAttributes = FontAttributes.None;
 			this.labelAuthor.TextColor = Color.Blue;
 			this.labelAuthor.FontAttributes = FontAttributes.Bold;
-            bSearchTitle = false;
+			this.btnSearch.Text = "本の著者で検索";
+			bSearchTitle = false;
 		}
 
 		private AmazonCresidentials LoadCredentialsFile()
@@ -72,8 +89,8 @@ namespace MyBookReading
 		}
 
 
-		private async void OnButtonClicked(object sender, EventArgs e)
-		{
+		//private async void OnButtonClicked(object sender, EventArgs e)
+		//{
    //         string url = "https://www.googleapis.com/books/v1/volumes?q=" + searchTitleEntry.Text;
 			//HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
 			//HttpWebResponse response = (HttpWebResponse)await request.GetResponseAsync(); // (note: await added, method call changed to GetResponseAsync()
@@ -88,7 +105,7 @@ namespace MyBookReading
             //string authorList = googleBooksJsonToText(responseFromServer);
             //bookSearchResult.Text = authorList;
             //bookSearchResult.Text = responseFromServer;
-		}
+		//}
 
         private string googleBooksJsonToText(string jsonString)
         {

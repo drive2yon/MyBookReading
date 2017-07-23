@@ -8,7 +8,8 @@ namespace MyBookReading
         {
             InitializeComponent();
 
-            MainPage = new MyBookReadingPage();
+            //MainPage = new MyBookReadingPage();
+            MainPage = new NavigationPage( new MyBookListPage() );
         }
 
         protected override void OnStart()

@@ -14,11 +14,14 @@
                     <ViewCell>
                         <StackLayout Orientation="Horizontal" Padding="5">
                             <Image Source="{Binding ImageUrl}"   
-                                    HorizontalOptions="Start" />
+                                    HorizontalOptions="Start"
+                                    WidthRequest="100"/>
                             <StackLayout Orientation="Vertical" Padding="5">
                                 <Label Text="{Binding Title}"
-                                        Style="{DynamicResource TitleStyle}" />
+                                       LineBreakMode="TailTruncation"
+                                       FontSize="16"/>
                                 <Label Text="{Binding Author}" 
+                                        LineBreakMode="TailTruncation"
                                         TextColor="Navy"
                                         FontSize="12"
                                         HorizontalOptions="Start" />

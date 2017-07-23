@@ -10,6 +10,7 @@ namespace MyBookReading
         {
 			InitializeComponent();
 
+            this.Title = "本の一覧";
             const string url = "https://www.xamarin.com/content/images/pages/branding/assets/xamagon.png";
             var books = new List<Book>
             {
@@ -19,6 +20,23 @@ namespace MyBookReading
             };
 
             this.BindingContext = books;
+
+			ToolbarItems.Add(new ToolbarItem
+			{
+				Text = "[本の追加]",
+				Command = new Command(() => Navigation.PushAsync(new BookSearchPage()))
+   			});
+			ToolbarItems.Add(new ToolbarItem { Text = "設定" });
+		
+
+            //test
+            var target = Karamem0.LinqToCalil.Calil.GetCityList();
+			//IEnumerable<Karamem0.LinqToCalil.CalilCityListResult> actual = target.AsEnumerable();
+			var actual = target.AsEnumerable();
+			//var prefArray = actual.Where(x => x.Pref).Distinct();
+            foreach (var item in actual) {
+                System.Diagnostics.Debug.WriteLine(item.Pref);
+            }
         }
     }
 }

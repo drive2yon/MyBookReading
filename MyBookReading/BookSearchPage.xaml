@@ -3,26 +3,32 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="MyBookReading.BookSearchPage">
 	<ContentPage.Content>
-        <StackLayout Spacing="10">
-            <Label  x:Name="labelTitle"
-                    Text="タイトル"></Label>
-            <Entry x:Name="entryTitle"
-                    Keyboard="Email"
-                    Placeholder="書籍のタイトルで検索する"
-                    VerticalOptions="Start"
-                    Focused="Handle_FocusedTitle"></Entry>
-            <Label  x:Name="labelAuthor"
-                    Text="著者名"></Label>
-            <Entry  x:Name="entryAuthor"
-                    Keyboard="Email"
-                    Placeholder="書籍の著者名で検索する"
-                    VerticalOptions="Start"
-                    Focused="Handle_FocusedAuthor"></Entry>
-            <Button Text="検索する"
-                    HorizontalOptions="FillAndExpand"
-                    VerticalOptions="Start"
-                    BorderWidth="1"
-                    Clicked="Handle_SearchClicked"></Button>
-        </StackLayout>
+            <StackLayout>
+                <ScrollView HeightRequest="150">
+                    <StackLayout Spacing="5">
+                        <Label  x:Name="labelTitle"
+                                Text="本のタイトル"></Label>
+                        <Entry x:Name="entryTitle"
+                                Keyboard="Email"
+                                Placeholder="本のタイトルで検索する"
+                                VerticalOptions="Start"
+                                Focused="Handle_FocusedTitle"></Entry>
+                        <Label  x:Name="labelAuthor"
+                                Text="本の著者"></Label>
+                        <Entry  x:Name="entryAuthor"
+                                Keyboard="Email"
+                                Placeholder="本の著者で検索する"
+                                VerticalOptions="Start"
+                                Focused="Handle_FocusedAuthor"></Entry>
+                    </StackLayout>
+                </ScrollView>
+                    <Button x:Name="btnSearch"
+                            Text="本のタイトルで検索する"
+                            HorizontalOptions="FillAndExpand"
+                            VerticalOptions="Start"
+                            BorderWidth="1"
+                            HeightRequest="80"
+                            Clicked="Handle_SearchClicked"></Button>
+            </StackLayout>
 	</ContentPage.Content>
 </ContentPage>
