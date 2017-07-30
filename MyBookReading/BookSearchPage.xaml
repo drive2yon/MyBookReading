@@ -3,32 +3,46 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="MyBookReading.BookSearchPage">
 	<ContentPage.Content>
-            <StackLayout>
-                <ScrollView HeightRequest="150">
-                    <StackLayout Spacing="5">
+       <RelativeLayout x:Name="relativeLayout">
+            <StackLayout x:Name="itemStackLayout">
+                <ScrollView
+                    x:Name="entryScrollView"
+                    HeightRequest="150">
+                    <StackLayout Spacing="2"
+                        Margin="10">
                         <Label  x:Name="labelTitle"
                                 Text="本のタイトル"></Label>
                         <Entry x:Name="entryTitle"
                                 Keyboard="Email"
-                                Placeholder="本のタイトルで検索する"
-                                VerticalOptions="Start"
+                                Placeholder="本のタイトルで検索する                    "
                                 Focused="Handle_FocusedTitle"></Entry>
                         <Label  x:Name="labelAuthor"
                                 Text="本の著者"></Label>
                         <Entry  x:Name="entryAuthor"
                                 Keyboard="Email"
                                 Placeholder="本の著者で検索する"
-                                VerticalOptions="Start"
                                 Focused="Handle_FocusedAuthor"></Entry>
                     </StackLayout>
                 </ScrollView>
-                    <Button x:Name="btnSearch"
-                            Text="本のタイトルで検索する"
-                            HorizontalOptions="FillAndExpand"
-                            VerticalOptions="Start"
-                            BorderWidth="1"
-                            HeightRequest="80"
-                            Clicked="Handle_SearchClicked"></Button>
+                <Button x:Name="btnSearch"
+                        Margin="10"
+                        Text="本のタイトルで検索する"
+                        HorizontalOptions="FillAndExpand"
+                        BorderWidth="1"
+                        HeightRequest="80"
+                        Clicked="Handle_SearchClicked"></Button>
             </StackLayout>
+            <ContentView x:Name="cvLayer"
+                         BackgroundColor="Black"
+                         Opacity="0.4"
+                         IsVisible="false">
+                <Frame x:Name="frLayer"
+                       BackgroundColor="White"
+                       Opacity="0.8"
+                       IsVisible="false">
+                       <ActivityIndicator IsRunning="true"/>
+                </Frame>
+            </ContentView>
+        </RelativeLayout>
 	</ContentPage.Content>
 </ContentPage>

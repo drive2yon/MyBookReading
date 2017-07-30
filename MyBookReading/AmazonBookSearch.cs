@@ -49,11 +49,11 @@ namespace MyBookReading
 			string PARAM_TIME_STAMP = "&Timestamp=" + strTime.Replace(":", "%3A");
 			string PARAM_AWSKEY_AND_TAG = "AWSAccessKeyId=" + amazonKey.access_key_id + "&AssociateTag=" + amazonKey.associate_tag;
             string PARAM_KEYWORD;
-            if(searchType == SearchType.SearchBook_ByTitle)
+			const string PARAM_OPERATION = "&Operation=ItemSearch&ResponseGroup=Images%2CItemAttributes&SearchIndex=Books&Service=AWSECommerceService";
+			const string PARAM_VERSION = "&Version=2011-08-01";
+			if(searchType == SearchType.SearchBook_ByTitle)
             {
 				PARAM_KEYWORD = "&Title=" + keyWord;
-				const string PARAM_OPERATION = "&Operation=ItemSearch&ResponseGroup=Images%2CSmall&SearchIndex=Books&Service=AWSECommerceService";
-				const string PARAM_VERSION = "&Version=2011-08-01";
 
 				strBuilder.Append("GET\n")
 						  .Append(MARKET_PLACE_URL + "\n")
@@ -72,8 +72,6 @@ namespace MyBookReading
             else
             {
 				PARAM_KEYWORD = "&Author=" + keyWord;
-				const string PARAM_OPERATION = "&Operation=ItemSearch&ResponseGroup=Images%2CSmall&SearchIndex=Books&Service=AWSECommerceService";
-				const string PARAM_VERSION = "&Version=2011-08-01";
 
 				strBuilder.Append("GET\n")
 						  .Append(MARKET_PLACE_URL + "\n")
@@ -125,6 +123,7 @@ namespace MyBookReading
 						}
 						else if (elemItems.Name.LocalName == "Item")
 						{
+                            bool addBook = true;
 							Book book = new Book();
 							foreach (XElement elemItem in elemItems.Elements())
 							{
@@ -182,10 +181,30 @@ namespace MyBookReading
 										{
 											book.Title = elemItemAttributes.Value;
 										}
+                                        else if (elemItemAttributes.Name.LocalName == "EISBN")
+                                        {
+											book.ISBN = elemItemAttributes.Value;
+										}
+										else if (elemItemAttributes.Name.LocalName == "PublicationDate")
+										{
+											book.PublishedDate = elemItemAttributes.Value;
+										}
+										else if (elemItemAttributes.Name.LocalName == "Format")
+										{
+                                            //Kindle除外
+                                            if(elemItemAttributes.Value.StartsWith("Kindle", StringComparison.CurrentCulture))
+                                            {
+                                                addBook = false;
+                                                break;
+                                            }
+										}
 									}
 								}
 							}
-							booksResult.Add(book);
+                            if (addBook)
+                            {
+                                booksResult.Add(book);
+                            }
 						}
 					}
 				}

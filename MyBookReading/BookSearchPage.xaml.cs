@@ -17,6 +17,27 @@ namespace MyBookReading
             amazonKey = LoadCredentialsFile();
             InitializeComponent();
 			this.Appearing += (object sender, System.EventArgs e) => this.entryTitle.Focus();
+        }
+
+		protected override void OnSizeAllocated(double width, double height)
+		{
+			base.OnSizeAllocated(width, height);
+
+			entryScrollView.WidthRequest = relativeLayout.Width;
+
+            relativeLayout.Children.Add(cvLayer,
+				Constraint.RelativeToParent(parent => 0), // xConstraint
+				Constraint.RelativeToParent(parent => 0), // yConstraint
+                Constraint.RelativeToParent(parent => parent.Width), // widthConstraint
+				Constraint.RelativeToParent(parent => parent.Height) // heightConstraint
+			);
+
+			relativeLayout.Children.Add(frLayer,
+				Constraint.RelativeToParent(parent => (itemStackLayout.Width  / 2) - (frLayer.Width / 2)), // xConstraint
+				Constraint.RelativeToParent(parent => (itemStackLayout.Height / 2) - (frLayer.Height / 2)), // yConstrain
+                Constraint.RelativeToParent(parent => Math.Min(itemStackLayout.Width,itemStackLayout.Height) / 4), // widthConstraint
+				Constraint.RelativeToParent(parent => Math.Min(itemStackLayout.Width,itemStackLayout.Height) / 4) // heightConstraint
+			);
 		}
 
 		async void Handle_SearchClicked(object sender, System.EventArgs e)
@@ -37,19 +58,18 @@ namespace MyBookReading
                 return;
             }
 
-			IsBusy = true;
+            cvLayer.IsVisible = frLayer.IsVisible = true;
 			AmazonBookSearch search = new AmazonBookSearch(amazonKey);
     		ObservableCollection<Book> books = new ObservableCollection<Book>();
             bool result = await search.Search(searchType, keyword, books);
-			IsBusy = false;
-            if(!result)
+            cvLayer.IsVisible = frLayer.IsVisible = false;
+			if(!result)
             {
 				await DisplayAlert("検索に失敗", "しばらくしてから検索してください", "OK");
                 return;
             }
             else
             {
-				await DisplayAlert("検索に成功", "やったね", "OK");
 				await Navigation.PushAsync( new SearchBookResult(keyword, amazonKey, books) );
 				return;
 			}
