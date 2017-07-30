@@ -62,15 +62,16 @@ namespace MyBookReading
 			AmazonBookSearch search = new AmazonBookSearch(amazonKey);
     		ObservableCollection<Book> books = new ObservableCollection<Book>();
             bool result = await search.Search(searchType, keyword, books);
-            cvLayer.IsVisible = frLayer.IsVisible = false;
 			if(!result)
             {
+				cvLayer.IsVisible = frLayer.IsVisible = false;
 				await DisplayAlert("検索に失敗", "しばらくしてから検索してください", "OK");
                 return;
             }
             else
             {
 				await Navigation.PushAsync( new SearchBookResult(keyword, amazonKey, books) );
+				cvLayer.IsVisible = frLayer.IsVisible = false;
 				return;
 			}
 		}
