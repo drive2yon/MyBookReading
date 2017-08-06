@@ -49,6 +49,9 @@
     <EmbeddedResource Include="SearchBookResult.xaml">
       <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
     </EmbeddedResource>
+    <EmbeddedResource Include="SelectPrefecturePage.xaml">
+      <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
+    </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="App.xaml.cs">
@@ -74,6 +77,11 @@
       <DependentUpon>SearchBookResult.xaml</DependentUpon>
     </Compile>
     <Compile Include="AmazonBookSearch.cs" />
+    <Compile Include="SettingPage.cs" />
+    <Compile Include="SelectPrefecturePage.xaml.cs">
+      <DependentUpon>SelectPrefecturePage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="SelectCityPage.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Xamarin.Forms.Core">

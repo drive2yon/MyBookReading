@@ -26,7 +26,11 @@ namespace MyBookReading
 				Text = "[本の追加]",
 				Command = new Command(() => Navigation.PushAsync(new BookSearchPage()))
    			});
-			ToolbarItems.Add(new ToolbarItem { Text = "[設定]" });
+			ToolbarItems.Add(new ToolbarItem
+            {
+                Text = "[設定]",
+                Command = new Command(() => Navigation.PushAsync(new SettingPage()))
+            });
 		
 
             //test
