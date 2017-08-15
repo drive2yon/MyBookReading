@@ -7,7 +7,7 @@ namespace MyBookReading
 {
     public partial class SearchBookResult : ContentPage
     {
-        public SearchBookResult( string keyword, AmazonCresidentials amazonKey, ObservableCollection<Book> books )
+        public SearchBookResult( string keyword, AmazonCredentials amazonKey, ObservableCollection<Book> books )
         {
             InitializeComponent();
 

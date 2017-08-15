@@ -10,7 +10,7 @@ namespace MyBookReading
 {
     public partial class BookSearchPage : ContentPage
     {
-        AmazonCresidentials amazonKey;
+        AmazonCredentials amazonKey;
         private bool bSearchTitle;
         public BookSearchPage()
         {
@@ -96,7 +96,7 @@ namespace MyBookReading
 			bSearchTitle = false;
 		}
 
-		private AmazonCresidentials LoadCredentialsFile()
+		private AmazonCredentials LoadCredentialsFile()
 		{
 			//AmazonCredentials.json sample
 			//{"associate_tag":"XXXXX","access_key_id":"XXXXX","secret_access_key":"XXXXX"}
@@ -108,7 +108,7 @@ namespace MyBookReading
 			{
 				text = reader.ReadToEnd();
 			}
-			AmazonCresidentials amazon = JsonConvert.DeserializeObject<AmazonCresidentials>(text);
+			AmazonCredentials amazon = JsonConvert.DeserializeObject<AmazonCredentials>(text);
 			return amazon;
 		}
 

@@ -91,7 +91,7 @@ namespace MyBookReading
 
                 string responseFromServer = sr.ReadToEnd();
 
-				await Navigation.PushAsync(new SelectCityPage(responseFromServer));
+				await Navigation.PushAsync(new SelectCityPage(prefecture, responseFromServer));
 
 			}
             catch (Exception exception)

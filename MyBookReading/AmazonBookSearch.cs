@@ -12,7 +12,7 @@ namespace MyBookReading
 
 	public class AmazonBookSearch
     {
-		private AmazonCresidentials amazonKey;
+		private AmazonCredentials amazonKey;
 		private const string MARKET_PLACE_URL = "webservices.amazon.co.jp";
 		private const string DESTINATION = "ecs.amazonaws.jp";
 		const string END_POINT_JP = "ecs.amazonaws.jp";
@@ -23,7 +23,7 @@ namespace MyBookReading
             SearchBook_ByAuthor,
         }
 
-        public AmazonBookSearch(AmazonCresidentials cresidentials)
+        public AmazonBookSearch(AmazonCredentials cresidentials)
         {
             amazonKey = cresidentials;
         }
