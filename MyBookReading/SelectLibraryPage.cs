@@ -4,47 +4,29 @@ using System.Collections.ObjectModel;
 using System.IO;
 using System.Reflection;
 using System.Text;
+using MyBookReading.Model;
 using Newtonsoft.Json;
 using Xamarin.Forms;
+using PCLStorage;
+using System.Threading.Tasks;
+using Realms;
+using System.Linq;
 
 namespace MyBookReading
 {
     public class SelectLibraryPage : ContentPage
     {
-		/// <summary>
-		/// https://calil.jp/doc/api_ref.html
-		/// </summary>
-		public class CalilLibrary
-		{
-			public string category { get; set; }
-			public string city { get; set; }
-			public string Short { get; set; }
-			public string tel { get; set; }
-			public string pref { get; set; }
-			public string faid { get; set; }
-			public string geocode { get; set; }
-			public string systemid { get; set; }
-			public string address { get; set; }
-			public string libid { get; set; }
-			public string libkey { get; set; }
-			public string post { get; set; }
-			public string url_pc { get; set; }
-			public string systemname { get; set; }
-			public string isil { get; set; }
-			public string formal { get; set; }
-
-            public override string ToString()
-            {
-                return formal;
-            }
-		}
+		//図書館群をsystem名単位のグループにまとめる
+		//< system名, 図書館リスト >
+		Dictionary<string, List<CalilLibrary>> systemIdLibraryTable;
 
         public class LibraryGroup
         {
-            public LibraryGroup(string name, List<string>list)
+            public LibraryGroup(string name, List<string>list, bool isRegist)
             {
                 SystemName = name;
                 ShortNameList = list;
+                IsRegist = isRegist;
                 var str = new StringBuilder();
                 foreach(string libName in ShortNameList)
                 {
@@ -56,6 +38,7 @@ namespace MyBookReading
             public string SystemName {private set; get; }
             public List<string> ShortNameList { private set; get; }
             public string ShortNameLabel { private set; get; }
+            public bool IsRegist{ set; get; }
         };
 
         private class LibraryCell : ViewCell
@@ -68,6 +51,7 @@ namespace MyBookReading
                     HorizontalOptions = LayoutOptions.End,
                     VerticalOptions = LayoutOptions.CenterAndExpand,
 	            };
+                librarySelSwitch.SetBinding(Switch.IsToggledProperty, "IsRegist");
 
             	//systemname
                 var systemName = new Label { FontSize = Device.GetNamedSize(NamedSize.Large, typeof(Label)),
@@ -99,11 +83,8 @@ namespace MyBookReading
         {
 			try
 			{
-                //レスポンスから取得した図書館群
 				List<CalilLibrary> libraryResponse = JsonConvert.DeserializeObject< List<CalilLibrary>>(jsonResponseLibrary);
-                //図書館群をsystem名単位のグループにまとめる
-                //< system名, 図書館リスト >
-                Dictionary< string, List<CalilLibrary>> systemIdLibraryTable = new Dictionary<string, List<CalilLibrary>>();
+                systemIdLibraryTable = new Dictionary<string, List<CalilLibrary>>();
 				foreach (CalilLibrary library in libraryResponse)
 				{
                     string key = library.systemname;
@@ -117,22 +98,28 @@ namespace MyBookReading
                         value.Add(library);
                         systemIdLibraryTable.Add(key, value);
 					}
-
 				}
 
 				List<LibraryGroup> libraryGropuList = new List<LibraryGroup>();
-                foreach (KeyValuePair<string, List<CalilLibrary>> item in systemIdLibraryTable)
+
+				//登録済み図書館
+				using (var realm = Realm.GetInstance())
 				{
-                    List<string> shortNameList = new List<string>();
-                    foreach( var name in item.Value )
-                    {
-                        shortNameList.Add(name.Short);
-                    }
-                    libraryGropuList.Add(new LibraryGroup(item.Key, shortNameList));
+                    foreach (KeyValuePair<string, List<CalilLibrary>> item in systemIdLibraryTable)
+        			{
+                        var librarys = realm.All<CalilLibrary>().Where(x => x.systemname == item.Key);
+                        bool isRegist = librarys.Count() > 0;
+
+						List<string> shortNameList = new List<string>();
+                        foreach( var name in item.Value )
+                        {
+                            shortNameList.Add(name.Short);
+                        }
+                        libraryGropuList.Add(new LibraryGroup(item.Key, shortNameList, isRegist));
+        			}
 				}
 
-
-                ListView listView = new ListView
+				ListView listView = new ListView
                 {
                     ItemTemplate = new DataTemplate(typeof(LibraryCell)),//セルの指定
 					ItemsSource = libraryGropuList,
@@ -140,9 +127,34 @@ namespace MyBookReading
 				};
 
 				// Define a selected handler for the ListView.
-				listView.ItemSelected += (sender, args) =>
+				listView.ItemSelected += async (sender, args) =>
 				{
-					//GoLibraryListPageAsync(prefName, (String)args.SelectedItem);
+                    var item = args.SelectedItem as LibraryGroup;
+					bool ret = await DisplayAlert("図書館の登録", "検索対象に登録しますか？", "OK","キャンセル");
+                    if(ret)
+                    {
+                        item.IsRegist = true;
+                        //図書館をDBに登録する
+                        foreach (var keyValuePair in systemIdLibraryTable)
+                        {
+                            if(keyValuePair.Key == item.SystemName)
+                            {
+                                using (var realm = Realm.GetInstance())
+                                {
+                                    realm.Write(() =>
+                                    {
+                                        foreach(var library in keyValuePair.Value)
+                                        {
+											realm.Add(library);
+										}
+                                    });
+                                }
+
+                                break;
+                            }
+                        }
+                    }
+                    ((ListView)sender).SelectedItem = null;
 				};
 				this.Content = listView;
 

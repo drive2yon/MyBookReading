@@ -72,7 +72,6 @@
     <Compile Include="RatingStars.xaml.cs">
       <DependentUpon>RatingStars.xaml</DependentUpon>
     </Compile>
-    <Compile Include="AmazonCredentials.cs" />
     <Compile Include="HmacSha256.cs" />
     <Compile Include="SearchBookResult.xaml.cs">
       <DependentUpon>SearchBookResult.xaml</DependentUpon>
@@ -84,7 +83,9 @@
     </Compile>
     <Compile Include="SelectCityPage.cs" />
     <Compile Include="SelectLibraryPage.cs" />
-    <Compile Include="CalilCredentials.cs" />
+    <Compile Include="Model\CalilLibrary.cs" />
+    <Compile Include="Model\CalilCredentials.cs" />
+    <Compile Include="Model\AmazonCredentials.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Xamarin.Forms.Core">
@@ -121,6 +122,9 @@
   <ItemGroup>
     <None Include="packages.config" />
     <None Include="FodyWeavers.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Model\" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <Import Project="..\packages\Xamarin.Forms.2.3.4.247\build\portable-win+net45+wp80+win81+wpa81+MonoAndroid10+Xamarin.iOS10+xamarinmac20\Xamarin.Forms.targets" Condition="Exists('..\packages\Xamarin.Forms.2.3.4.247\build\portable-win+net45+wp80+win81+wpa81+MonoAndroid10+Xamarin.iOS10+xamarinmac20\Xamarin.Forms.targets')" />

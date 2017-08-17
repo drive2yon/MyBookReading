@@ -6,6 +6,8 @@ using System.Collections.Generic;
 using System.Net;
 using System.IO;
 using System.Reflection;
+using MyBookReading.Model;
+using Realms;
 
 namespace MyBookReading
 {
@@ -31,7 +33,7 @@ namespace MyBookReading
             CityListSet dataSet;
             const string startSrt = "loadlibs(";
 			const string endStr = ");";
-			if(cityJsonResponse.StartsWith(startSrt) && cityJsonResponse.EndsWith(endStr))
+            if(cityJsonResponse.StartsWith(startSrt, StringComparison.OrdinalIgnoreCase) && cityJsonResponse.EndsWith(endStr, StringComparison.OrdinalIgnoreCase))
             {
                 cityJsonResponse = cityJsonResponse.Substring(startSrt.Length, cityJsonResponse.Length - startSrt.Length - endStr.Length);                
             }
@@ -99,6 +101,7 @@ namespace MyBookReading
 				System.Diagnostics.Debug.WriteLine(exception.ToString());
 			}
 		}
+
 		private CalilCredentials LoadCredentialsFile()
 		{
 			//CalilCredentials.json sample
