@@ -55,7 +55,7 @@ namespace MyBookReading
 			//登録済み図書館
 			using (var realm = Realm.GetInstance())
 			{
-				var librarys = realm.All<CalilLibrary>();//.Where(x => x.systemid != null );
+				var librarys = realm.All<CheckTargetLibrary>();
                 registLibraryCount = librarys.Count();
 			}
 

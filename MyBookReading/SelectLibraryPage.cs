@@ -1,14 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.IO;
-using System.Reflection;
 using System.Text;
 using MyBookReading.Model;
 using Newtonsoft.Json;
 using Xamarin.Forms;
-using PCLStorage;
-using System.Threading.Tasks;
 using Realms;
 using System.Linq;
 
@@ -79,45 +74,74 @@ namespace MyBookReading
 			}
 		}
 
-        public SelectLibraryPage( string apiKey, string pref, string city, string jsonResponseLibrary )
+        /// <summary>
+        /// 図書館検索のレスポンスJSONを図書館クラスのリストにする。
+        /// そのリストをsystemid単位で分けたディクショナリーにして返す
+        /// </summary>
+        /// <returns>The systemIDLibrary table.</returns>
+        /// <param name="jsonResponseLibrary">Json response library.</param>
+        private Dictionary<string, List<CalilLibrary>> getSystemIDLibraryTable(string jsonResponseLibrary)
         {
+			Dictionary<string, List<CalilLibrary>> table = new Dictionary<string, List<CalilLibrary>>();
 			try
-			{
-				List<CalilLibrary> libraryResponse = JsonConvert.DeserializeObject< List<CalilLibrary>>(jsonResponseLibrary);
-                systemIdLibraryTable = new Dictionary<string, List<CalilLibrary>>();
-				foreach (CalilLibrary library in libraryResponse)
-				{
+            {
+                List<CalilLibrary> libraryResponse = JsonConvert.DeserializeObject<List<CalilLibrary>>(jsonResponseLibrary);
+                foreach (CalilLibrary library in libraryResponse)
+                {
                     string key = library.systemname;
-                    if(systemIdLibraryTable.ContainsKey(key))
+                    if (table.ContainsKey(key))
                     {
-                        systemIdLibraryTable[key].Add(library);
+                        table[key].Add(library);
                     }
                     else
                     {
                         var value = new List<CalilLibrary>();
                         value.Add(library);
-                        systemIdLibraryTable.Add(key, value);
-					}
-				}
+                        table.Add(key, value);
+                    }
+                }
+            }
+			catch (Exception e)
+			{
+				System.Diagnostics.Debug.WriteLine(e.ToString());
+			}
+			return table;
+		}
 
-				List<LibraryGroup> libraryGropuList = new List<LibraryGroup>();
+        /// <summary>
+        /// ViewCellに表示するための図書館情報リストを取得する
+        /// </summary>
+        /// <returns>The library group list.</returns>
+        private List<LibraryGroup> getLibraryGroupList()
+        {
+			List<LibraryGroup> libraryGropuList = new List<LibraryGroup>();
 
-				//登録済み図書館
-				using (var realm = Realm.GetInstance())
+			//登録済み図書館
+			using (var realm = Realm.GetInstance())
+			{
+				foreach (KeyValuePair<string, List<CalilLibrary>> item in systemIdLibraryTable)
 				{
-                    foreach (KeyValuePair<string, List<CalilLibrary>> item in systemIdLibraryTable)
-        			{
-                        var librarys = realm.All<CalilLibrary>().Where(x => x.systemname == item.Key);
-                        bool isRegist = librarys.Count() > 0;
+					var librarys = realm.All<CheckTargetLibrary>().Where(x => x.systemname == item.Key);
+					bool isRegist = librarys.Count() > 0;
 
-						List<string> shortNameList = new List<string>();
-                        foreach( var name in item.Value )
-                        {
-                            shortNameList.Add(name.Short);
-                        }
-                        libraryGropuList.Add(new LibraryGroup(item.Key, shortNameList, isRegist));
-        			}
+					List<string> shortNameList = new List<string>();
+					foreach (var name in item.Value)
+					{
+						shortNameList.Add(name.Short);
+					}
+					libraryGropuList.Add(new LibraryGroup(item.Key, shortNameList, isRegist));
 				}
+			}
+            return libraryGropuList;
+		}
+
+        public SelectLibraryPage( string apiKey, string pref, string city, string jsonResponseLibrary )
+        {
+			try
+			{
+                systemIdLibraryTable = getSystemIDLibraryTable(jsonResponseLibrary);
+                List<LibraryGroup> libraryGropuList = getLibraryGroupList();
+
 
 				ListView listView = new ListView
                 {
@@ -143,10 +167,13 @@ namespace MyBookReading
                                 {
                                     realm.Write(() =>
                                     {
-                                        foreach(var library in keyValuePair.Value)
+                                        var library = keyValuePair.Value.First();
+                                        CheckTargetLibrary target = new CheckTargetLibrary()
                                         {
-											realm.Add(library);
-										}
+                                            systemid = library.systemid,
+                                            systemname = library.systemname,
+                                        };
+										realm.Add(target);
                                     });
                                 }
 

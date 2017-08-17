@@ -3,6 +3,15 @@ using Realms;
 
 namespace MyBookReading.Model
 {
+    /// <summary>
+    /// 蔵書検索の対象となる図書館
+    /// </summary>
+    public class CheckTargetLibrary : RealmObject
+    {
+		public string systemid { get; set; }    //システムID
+		public string systemname { get; set; }  //システム名称
+	}
+
 	/// <summary>
 	/// https://calil.jp/doc/api_ref.html
     /// libidがユニークかつ固定値である前提で設計する。そのためlibidが変わると破綻するので注意
