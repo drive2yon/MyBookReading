@@ -6,6 +6,7 @@ using Newtonsoft.Json;
 using Xamarin.Forms;
 using Realms;
 using System.Linq;
+using System.ComponentModel;
 
 namespace MyBookReading
 {
@@ -15,13 +16,21 @@ namespace MyBookReading
 		//< system名, 図書館リスト >
 		Dictionary<string, List<CalilLibrary>> systemIdLibraryTable;
 
-        public class LibraryGroup
+        public class LibraryGroup : INotifyPropertyChanged
         {
+            public event PropertyChangedEventHandler PropertyChanged = delegate { };
+
             public LibraryGroup(string name, List<string>list, bool isRegist)
             {
                 SystemName = name;
                 ShortNameList = list;
                 IsRegist = isRegist;
+                CanRegist = !IsRegist;
+                GroupTitle = SystemName;
+                if(IsRegist)
+                {
+                    GroupTitle += "（登録済）";
+                }
                 var str = new StringBuilder();
                 foreach(string libName in ShortNameList)
                 {
@@ -33,8 +42,23 @@ namespace MyBookReading
             public string SystemName {private set; get; }
             public List<string> ShortNameList { private set; get; }
             public string ShortNameLabel { private set; get; }
-            public bool IsRegist{ set; get; }
-        };
+            public bool IsRegist{ private set; get; }
+			public bool CanRegist { private set; get; }
+			public string GroupTitle { private set; get; }
+            public void UpdateStatus(bool isRegist)
+            {
+                IsRegist = true;
+				CanRegist = !IsRegist;
+				GroupTitle = SystemName;
+				if (IsRegist)
+				{
+					GroupTitle += "（登録済）";
+				}
+                PropertyChanged(this, new PropertyChangedEventArgs("IsRegist"));
+				PropertyChanged(this, new PropertyChangedEventArgs("CanRegist"));
+				PropertyChanged(this, new PropertyChangedEventArgs("GroupTitle"));
+			}
+		};
 
         private class LibraryCell : ViewCell
 		{
@@ -52,7 +76,7 @@ namespace MyBookReading
                 var systemName = new Label { FontSize = Device.GetNamedSize(NamedSize.Large, typeof(Label)),
                                              FontAttributes = FontAttributes.Bold,
                                              HorizontalOptions = LayoutOptions.FillAndExpand};
-				systemName.SetBinding(Label.TextProperty, "SystemName");
+				systemName.SetBinding(Label.TextProperty, "GroupTitle");
 
                 //shortname list
 				var shortName = new Label { FontSize = Device.GetNamedSize(NamedSize.Default, typeof(Label)) };
@@ -71,6 +95,8 @@ namespace MyBookReading
 					Padding = new Thickness(5),
 					Children = { layoutSub, shortName }
 				};
+
+                this.SetBinding(IsEnabledProperty, "CanRegist" );
 			}
 		}
 
@@ -153,11 +179,23 @@ namespace MyBookReading
 				// Define a selected handler for the ListView.
 				listView.ItemSelected += async (sender, args) =>
 				{
-                    var item = args.SelectedItem as LibraryGroup;
+                    if(args.SelectedItem == null)
+                    {
+                        return;
+                    }
+					((ListView)sender).SelectedItem = null;
+
+					var item = (LibraryGroup)args.SelectedItem;
+                    if(item.IsRegist)
+                    {
+                        return;
+                    }
+
 					bool ret = await DisplayAlert("図書館の登録", "検索対象に登録しますか？", "OK","キャンセル");
                     if(ret)
                     {
-                        item.IsRegist = true;
+                        item.UpdateStatus(true);
+
                         //図書館をDBに登録する
                         foreach (var keyValuePair in systemIdLibraryTable)
                         {
@@ -181,7 +219,6 @@ namespace MyBookReading
                             }
                         }
                     }
-                    ((ListView)sender).SelectedItem = null;
 				};
 				this.Content = listView;
 

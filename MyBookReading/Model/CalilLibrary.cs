@@ -1,5 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using Realms;
+using Xamarin.Forms;
 
 namespace MyBookReading.Model
 {
@@ -11,6 +14,36 @@ namespace MyBookReading.Model
 		public string systemid { get; set; }    //システムID
 		public string systemname { get; set; }  //システム名称
 	}
+
+    /// <summary>
+    /// ListView表示用
+    /// </summary>
+    public class CheckTargetLibrarysViewModel
+	{
+		private readonly Realm _realm;
+
+		public IEnumerable<CheckTargetLibrary> Librarys { get; }
+
+        //not use
+		//public Command<CheckTargetLibrary> DelLibraryCommand { get; }
+
+		public CheckTargetLibrarysViewModel()
+		{
+			_realm = Realm.GetInstance();
+			Librarys = _realm.All<CheckTargetLibrary>();
+
+            //DelLibraryCommand = new Command<CheckTargetLibrary>(DelLibrary); 
+		}
+
+		public void DelLibrary(CheckTargetLibrary library)
+		{
+			if (library != null)
+			{
+				_realm.Write(() => _realm.Remove(library));
+			}
+		}
+	}
+
 
 	/// <summary>
 	/// https://calil.jp/doc/api_ref.html

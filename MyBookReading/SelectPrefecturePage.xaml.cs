@@ -73,7 +73,13 @@ namespace MyBookReading
 			// Define a selected handler for the ListView.
 			listView.ItemSelected += (sender, args) =>
 			{
-                GoCityListPageAsync((String)args.SelectedItem);
+				if (args.SelectedItem == null)
+				{
+					return;
+				}
+				((ListView)sender).SelectedItem = null;
+
+				GoCityListPageAsync((String)args.SelectedItem);
 			};
             this.Content = listView;
         }

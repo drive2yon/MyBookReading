@@ -9,55 +9,59 @@ namespace MyBookReading
 {
     public class SettingPage : ContentPage
     {
+        //設計がかなり良くないが暫定でstatic
+		private static readonly CheckTargetLibrarysViewModel LibraryVM = new CheckTargetLibrarysViewModel();
+
 		private class LibraryCell : ViewCell
 		{
-			public LibraryCell()
+            public LibraryCell()
 			{
-
-				Switch librarySelSwitch = new Switch
-				{
+                Label deleteLabel = new Label()
+                {
+                    Text = "[削除]",
 					HorizontalOptions = LayoutOptions.End,
-					VerticalOptions = LayoutOptions.CenterAndExpand,
+					VerticalOptions = LayoutOptions.Center,
 				};
+
+                var tgr = new TapGestureRecognizer();
+                tgr.Tapped += (sender, e) =>
+                {
+                    LibraryVM.DelLibrary((CheckTargetLibrary)BindingContext);
+                };
+				deleteLabel.GestureRecognizers.Add(tgr);
 
 				//systemname
 				var systemName = new Label
 				{
 					FontSize = Device.GetNamedSize(NamedSize.Large, typeof(Label)),
 					FontAttributes = FontAttributes.Bold,
-					HorizontalOptions = LayoutOptions.FillAndExpand
+					HorizontalOptions = LayoutOptions.FillAndExpand,
+					VerticalTextAlignment = TextAlignment.Center,
 				};
-				systemName.SetBinding(Label.TextProperty, "SystemName");
-
-				//shortname list
-				var shortName = new Label { FontSize = Device.GetNamedSize(NamedSize.Default, typeof(Label)) };
-				shortName.SetBinding(Label.TextProperty, "ShortNameLabel");
-
-				//サブレイアウト
-				var layoutSub = new StackLayout
-				{
-					Spacing = 10,
-					Orientation = StackOrientation.Horizontal,
-					Children = { systemName, librarySelSwitch }
-				};
+				systemName.SetBinding(Label.TextProperty, "systemname");
 
 				View = new StackLayout
 				{
-					Padding = new Thickness(5),
-					Children = { layoutSub, shortName }
+					Spacing = 10,
+					Orientation = StackOrientation.Horizontal,
+                    Children = { systemName, deleteLabel },
+                    VerticalOptions = LayoutOptions.Start,
+
 				};
 			}
 		}
 
+        Label LabelLibrary = new Label();
+        private void UpdateLibraryCount()
+        {
+            LabelLibrary.Text = string.Format("図書館の設定   登録数：{0} 件  (最大 5 件まで)", ((CheckTargetLibrarysViewModel)BindingContext).Librarys.Count());
+        }
+
         public SettingPage()
         {
-            int registLibraryCount = 0;
-			//登録済み図書館
-			using (var realm = Realm.GetInstance())
-			{
-				var librarys = realm.All<CheckTargetLibrary>();
-                registLibraryCount = librarys.Count();
-			}
+            BindingContext = LibraryVM;
+
+            this.Title = "設定";
 
 			var labelRegistLibraly = new Label
             {
@@ -70,47 +74,35 @@ namespace MyBookReading
 			tgr.Tapped += (sender, e) => OnLabelRegistLibralyClicked();
 			labelRegistLibraly.GestureRecognizers.Add(tgr);
 
-
-			TableView tableView = new TableView
-            {
-                Intent = TableIntent.Form,
-                Root = new TableRoot("TableView Title")
-                {
-                    new TableSection(string.Format("図書館の設定   登録数：{0} 件  (最大 5 件まで)", registLibraryCount))
-                    {
-                        new ViewCell
-                        {
-                            View = labelRegistLibraly
-                        },
-                    }
-				}
+			ListView libraryListView = new ListView
+			{
+				ItemTemplate = new DataTemplate(typeof(LibraryCell)),//セルの指定
+				ItemsSource = ((CheckTargetLibrarysViewModel)BindingContext).Librarys,
+                VerticalOptions = LayoutOptions.Start,
 			};
 
+			var layout = new StackLayout
+			{
+				Children = 
+                { 
+                    LabelLibrary,
+                    labelRegistLibraly,
+                    libraryListView,
+                },
+			};
 
-			//ListView libraryListView = new ListView
-			//{
-			//	ItemTemplate = new DataTemplate(typeof(LibraryCell)),//セルの指定
-			//	ItemsSource = librarys,
-			//	HasUnevenRows = true,
-			//};
-
-
-
-			//var layoutSub = new StackLayout
-			//{
-			//	Spacing = 10,
-			//	Children = { tableView, librarySelSwitch }
-			//};
-
-
-
-
-			this.Content = tableView;
+            this.Content = layout;
         }
 
         void OnLabelRegistLibralyClicked()
         {
 			Navigation.PushAsync(new SelectPrefecturePage());
+		}
+
+        protected override void OnAppearing()
+        {
+            base.OnAppearing();
+            UpdateLibraryCount();;
 		}
     }
 }
