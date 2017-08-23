@@ -46,7 +46,7 @@
     <EmbeddedResource Include="Assets\rating_star_on.png" />
     <EmbeddedResource Include="Assets\rating_star_on%402x.png" />
     <EmbeddedResource Include="Assets\AmazonCredentials.json" />
-    <EmbeddedResource Include="SearchBookResult.xaml">
+    <EmbeddedResource Include="BookSearchResultPage.xaml">
       <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
     </EmbeddedResource>
     <EmbeddedResource Include="SelectPrefecturePage.xaml">
@@ -73,8 +73,8 @@
       <DependentUpon>RatingStars.xaml</DependentUpon>
     </Compile>
     <Compile Include="HmacSha256.cs" />
-    <Compile Include="SearchBookResult.xaml.cs">
-      <DependentUpon>SearchBookResult.xaml</DependentUpon>
+    <Compile Include="BookSearchResultPage.xaml.cs">
+      <DependentUpon>BookSearchResultPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="AmazonBookSearch.cs" />
     <Compile Include="SettingPage.cs" />

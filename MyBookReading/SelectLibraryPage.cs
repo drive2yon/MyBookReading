@@ -47,13 +47,17 @@ namespace MyBookReading
 			public string GroupTitle { private set; get; }
             public void UpdateStatus(bool isRegist)
             {
-                IsRegist = true;
+                IsRegist = isRegist;
 				CanRegist = !IsRegist;
-				GroupTitle = SystemName;
 				if (IsRegist)
 				{
-					GroupTitle += "（登録済）";
+					GroupTitle = SystemName + "（登録済）";
 				}
+                else
+                {
+					GroupTitle = SystemName;
+				}
+
                 PropertyChanged(this, new PropertyChangedEventArgs("IsRegist"));
 				PropertyChanged(this, new PropertyChangedEventArgs("CanRegist"));
 				PropertyChanged(this, new PropertyChangedEventArgs("GroupTitle"));
@@ -71,6 +75,7 @@ namespace MyBookReading
                     VerticalOptions = LayoutOptions.CenterAndExpand,
 	            };
                 librarySelSwitch.SetBinding(Switch.IsToggledProperty, "IsRegist");
+                librarySelSwitch.IsEnabled = false;
 
             	//systemname
                 var systemName = new Label { FontSize = Device.GetNamedSize(NamedSize.Large, typeof(Label)),
@@ -96,7 +101,7 @@ namespace MyBookReading
 					Children = { layoutSub, shortName }
 				};
 
-                this.SetBinding(IsEnabledProperty, "CanRegist" );
+                //this.SetBinding(IsEnabledProperty, "CanRegist" );
 			}
 		}
 
@@ -186,39 +191,70 @@ namespace MyBookReading
 					((ListView)sender).SelectedItem = null;
 
 					var item = (LibraryGroup)args.SelectedItem;
+
                     if(item.IsRegist)
                     {
-                        return;
-                    }
+						item.UpdateStatus(false);
 
-					bool ret = await DisplayAlert("図書館の登録", "検索対象に登録しますか？", "OK","キャンセル");
-                    if(ret)
-                    {
-                        item.UpdateStatus(true);
-
-                        //図書館をDBに登録する
-                        foreach (var keyValuePair in systemIdLibraryTable)
-                        {
-                            if(keyValuePair.Key == item.SystemName)
-                            {
-                                using (var realm = Realm.GetInstance())
+						//DBから図書館を削除
+						using (var realm = Realm.GetInstance())
+						{
+							realm.Write(() =>
+							{
+                                var librarys = realm.All<CheckTargetLibrary>().Where(x => x.systemname == item.SystemName);;
+                                if(librarys != null && librarys.Count()>0)
                                 {
-                                    realm.Write(() =>
-                                    {
-                                        var library = keyValuePair.Value.First();
-                                        CheckTargetLibrary target = new CheckTargetLibrary()
-                                        {
-                                            systemid = library.systemid,
-                                            systemname = library.systemname,
-                                        };
-										realm.Add(target);
-                                    });
+                                    var library = librarys.First();
+									realm.Remove(library);
+								}
+							});
+						}
+					}
+                    else
+                    {
+						using (var realm = Realm.GetInstance())
+						{
+                            var librarys = realm.All<CheckTargetLibrary>();
+                            if(librarys != null)
+                            {
+                                const int MAX_LIBRARY_NUM = 5;
+                                if(librarys.Count() >= MAX_LIBRARY_NUM)
+                                {
+									await DisplayAlert("図書館の登録", "6件以上は登録できません", "OK");
+									return;
                                 }
-
-                                break;
                             }
-                        }
-                    }
+                            
+							//bool ret = await DisplayAlert("図書館の登録", "検索対象に登録しますか？", "OK", "キャンセル");
+							//if (!ret)
+							//{
+							//    return;
+							//}
+							item.UpdateStatus(true);
+
+    						//図書館をDBに登録する
+    						foreach (var keyValuePair in systemIdLibraryTable)
+    						{
+    							if (keyValuePair.Key == item.SystemName)
+    							{
+    									realm.Write(() =>
+    									{
+    										var library = keyValuePair.Value.First();
+    										CheckTargetLibrary target = new CheckTargetLibrary()
+    										{
+    											systemid = library.systemid,
+    											systemname = library.systemname,
+    										};
+    										realm.Add(target);
+    									});
+
+    								break;
+    							}
+    						}
+						}
+
+					}
+
 				};
 				this.Content = listView;
 
@@ -228,6 +264,6 @@ namespace MyBookReading
 				System.Diagnostics.Debug.WriteLine(e.ToString());
 			}
         }
-	}
+    }
 }
 

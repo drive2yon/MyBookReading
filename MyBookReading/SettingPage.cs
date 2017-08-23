@@ -9,10 +9,9 @@ namespace MyBookReading
 {
     public class SettingPage : ContentPage
     {
-        //設計がかなり良くないが暫定でstatic
-		private static readonly CheckTargetLibrarysViewModel LibraryVM = new CheckTargetLibrarysViewModel();
+        public CheckTargetLibrarysViewModel CheckTargetLibraryVM;
 
-		private class LibraryCell : ViewCell
+		class LibraryCell : ViewCell
 		{
             public LibraryCell()
 			{
@@ -26,7 +25,11 @@ namespace MyBookReading
                 var tgr = new TapGestureRecognizer();
                 tgr.Tapped += (sender, e) =>
                 {
-                    LibraryVM.DelLibrary((CheckTargetLibrary)BindingContext);
+					//登録済み図書館
+					using (var realm = Realm.GetInstance())
+					{
+                        realm.Write(() => realm.Remove((CheckTargetLibrary)BindingContext));
+					}
                 };
 				deleteLabel.GestureRecognizers.Add(tgr);
 
@@ -54,12 +57,13 @@ namespace MyBookReading
         Label LabelLibrary = new Label();
         private void UpdateLibraryCount()
         {
-            LabelLibrary.Text = string.Format("図書館の設定   登録数：{0} 件  (最大 5 件まで)", ((CheckTargetLibrarysViewModel)BindingContext).Librarys.Count());
-        }
+			//LabelLibrary.Text = string.Format("図書館の設定   登録数：{0} 件  (最大 5 件まで)", ((CheckTargetLibrarysViewModel)BindingContext).Librarys.Count());
+			LabelLibrary.Text = string.Format("図書館の設定   (最大 5 件まで登録可能)");
+		}
 
         public SettingPage()
         {
-            BindingContext = LibraryVM;
+            BindingContext = new CheckTargetLibrarysViewModel();// CheckTargetLibraryVM;
 
             this.Title = "設定";
 
@@ -102,7 +106,7 @@ namespace MyBookReading
         protected override void OnAppearing()
         {
             base.OnAppearing();
-            UpdateLibraryCount();;
+            UpdateLibraryCount();
 		}
     }
 }

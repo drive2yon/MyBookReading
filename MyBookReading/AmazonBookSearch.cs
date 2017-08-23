@@ -181,7 +181,7 @@ namespace MyBookReading
 										{
 											book.Title = elemItemAttributes.Value;
 										}
-                                        else if (elemItemAttributes.Name.LocalName == "EISBN")
+                                        else if (elemItemAttributes.Name.LocalName == "ISBN")
                                         {
 											book.ISBN = elemItemAttributes.Value;
 										}

@@ -50,5 +50,25 @@ namespace MyBookReading
 				CacheValidity = new TimeSpan(1, 0, 0, 0)
 			};
 		}
+
+        public void Init(Book book)
+        {
+            ASIN = book.ASIN;
+            AmazonDetailPageURL = book.AmazonDetailPageURL;
+            SmallImageURL = book.SmallImageURL;
+            MediumImageURL = book.MediumImageURL;
+            LargeImageURL = book.LargeImageURL;
+
+            ISBN = book.ISBN;
+            Title = book.Title;
+            Author = book.Author;
+            Publisher = book.Publisher;
+            PublishedDate = book.PublishedDate;
+
+            ImageUrl = book.ImageUrl;
+
+            Rating = book.Rating;
+            Reviews = book.Reviews;
+    	}
     }
 }

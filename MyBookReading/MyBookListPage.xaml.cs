@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using MyBookReading.Model;
 using Xamarin.Forms;
 
 namespace MyBookReading
 {
     public partial class MyBookListPage : ContentPage
     {
+        public CheckTargetLibrarysViewModel CheckTargetLibraryVM;
         public MyBookListPage()
         {
 			InitializeComponent();
@@ -26,10 +28,13 @@ namespace MyBookReading
 				Text = "[本の追加]",
 				Command = new Command(() => Navigation.PushAsync(new BookSearchPage()))
    			});
-			ToolbarItems.Add(new ToolbarItem
+            ToolbarItems.Add(new ToolbarItem
             {
                 Text = "[設定]",
-                Command = new Command(() => Navigation.PushAsync(new SettingPage()))
+                Command = new Command(() => Navigation.PushAsync(new SettingPage()
+                {
+                    CheckTargetLibraryVM = this.CheckTargetLibraryVM,
+                }))
             });
 		
 

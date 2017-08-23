@@ -1,4 +1,5 @@
-﻿using Xamarin.Forms;
+﻿using MyBookReading.Model;
+using Xamarin.Forms;
 
 namespace MyBookReading
 {
@@ -8,7 +9,11 @@ namespace MyBookReading
         {
             InitializeComponent();
 
-            //MainPage = new MyBookReadingPage();
+            var bookListPage = new MyBookListPage()
+            {
+                CheckTargetLibraryVM = new CheckTargetLibrarysViewModel(),
+            };
+
             MainPage = new NavigationPage( new MyBookListPage() );
         }
 

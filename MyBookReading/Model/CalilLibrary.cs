@@ -20,7 +20,7 @@ namespace MyBookReading.Model
     /// </summary>
     public class CheckTargetLibrarysViewModel
 	{
-		private readonly Realm _realm;
+		readonly Realm _realm;
 
 		public IEnumerable<CheckTargetLibrary> Librarys { get; }
 
