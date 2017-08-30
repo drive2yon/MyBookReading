@@ -22,9 +22,27 @@ namespace MyBookReading
 		Running,
 		Error
 	}    
-    public class SearchResultBook : Book, INotifyPropertyChanged
+    public class SearchResultBook : INotifyPropertyChanged
     {
 		public event PropertyChangedEventHandler PropertyChanged = delegate { };
+
+        public Book book;
+		//Amazon
+        public string ASIN { get { return book.ASIN;} }
+		public string AmazonDetailPageURL { get{ return book.AmazonDetailPageURL;} }
+		public string SmallImageURL { get{ return book.SmallImageURL;} }
+		public string MediumImageURL { get{return book.MediumImageURL;} }
+		public string LargeImageURL { get{return book.LargeImageURL;} }
+
+		//Coomon
+		public string ISBN { get{return book.ISBN;} }
+		public string Title { get{return book.Title;} }
+		public string Author { get{return book.Author;} }
+		public string Publisher { get{return book.Publisher;} }
+        public string PublishedDate { get{return book.PublishedDate;} }
+		//public string Description { get{book.;} }
+		//public string Category { get{book.;} }
+		public string ImageUrl { get{return book.ImageUrl;} }
 
 		/// <summary>
 		/// システムIDに紐尽く図書館のキーの配列です。
@@ -66,7 +84,8 @@ namespace MyBookReading
 
         public void InitBook(Book book)
         {
-            base.Init(book);
+            this.book = book;
+            //base.Init(book);
         }
 
 		public void Update(CalilCheckResult item)
@@ -79,8 +98,6 @@ namespace MyBookReading
 			PropertyChanged(this, new PropertyChangedEventArgs("Libkeys"));
 			PropertyChanged(this, new PropertyChangedEventArgs("SearchStatus"));
 			PropertyChanged(this, new PropertyChangedEventArgs("BookStatus"));
-            System.Diagnostics.Debug.WriteLine("Update Book by Result. " + Title + "SearchStatus=" + SearchStatus.ToString());
-
 		}
 
 		private CheckStatus ConvertStatus(CheckState state)
@@ -212,7 +229,7 @@ namespace MyBookReading
 			bool bUpdate = false;
 			foreach (SearchResultBook book in BookResultList)
 			{
-				if (book.ISBN == item.Isbn)
+				if (book.book.ISBN == item.Isbn)
 				{
 					bUpdate = true;
 					book.Update(item);

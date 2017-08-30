@@ -1,5 +1,6 @@
 ﻿using System;
 using MyBookReading.Web;
+using Realms;
 using Xamarin.Forms;
 
 namespace MyBookReading
@@ -9,13 +10,30 @@ namespace MyBookReading
         public BookDetailPage(SearchResultBook book)
         {
             this.Padding = new Thickness(10);
-            var amazonButton = new Button
+
+
+			ToolbarItems.Add(new ToolbarItem
+			{
+				Text = "[本の登録]",
+				Command = new Command(() =>
+                {
+					using (var realm = Realm.GetInstance())
+					{
+						realm.Write(() =>
+						{
+							realm.Add(book.book);
+						});
+					}
+                })
+			});
+
+			var amazonButton = new Button
             {
                 Text = "Goto Amazon",
             };
             amazonButton.Clicked += (sender, e) =>
             {
-                DependencyService.Get<IWebBrowserService>().Open(new Uri(book.AmazonDetailPageURL));                
+                DependencyService.Get<IWebBrowserService>().Open(new Uri(book.book.AmazonDetailPageURL));                
             };
 
             Content = new StackLayout
@@ -25,12 +43,12 @@ namespace MyBookReading
                 {
                     new Label
                     {
-                        Text = book.Title,
+                        Text = book.book.Title,
                         FontSize = Device.GetNamedSize(NamedSize.Large, typeof(Label))
                     },
                     new Label
                     {
-                        Text = book.Author,
+                        Text = book.book.Author,
                         FontSize = Device.GetNamedSize(NamedSize.Medium, typeof(Label))
                     },
 
@@ -42,7 +60,7 @@ namespace MyBookReading
                             new Image
                             {
                                 Source = new UriImageSource{
-                                    Uri = new Uri(book.ImageUrl),
+                                    Uri = new Uri(book.book.ImageUrl),
                                     CachingEnabled = true
                                 },
                                 WidthRequest = 100,
@@ -63,7 +81,7 @@ namespace MyBookReading
     								},
     								new Label
     								{
-    									Text = book.Publisher,
+    									Text = book.book.Publisher,
     								},
     								new Label
     								{
@@ -71,7 +89,7 @@ namespace MyBookReading
     								},
     								new Label
     								{
-    									Text = book.PublishedDate,
+    									Text = book.book.PublishedDate,
     								},
 								},
 							},

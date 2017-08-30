@@ -68,7 +68,6 @@
     <Compile Include="BookSearchPage.xaml.cs">
       <DependentUpon>BookSearchPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Book.cs" />
     <Compile Include="RatingStars.xaml.cs">
       <DependentUpon>RatingStars.xaml</DependentUpon>
     </Compile>
@@ -88,6 +87,7 @@
     <Compile Include="Model\AmazonCredentials.cs" />
     <Compile Include="BookDetailPage.cs" />
     <Compile Include="Web\IWebBrowserService.cs" />
+    <Compile Include="Model\Book.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Xamarin.Forms.Core">

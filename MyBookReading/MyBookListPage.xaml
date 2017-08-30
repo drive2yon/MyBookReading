@@ -13,7 +13,7 @@
                 <DataTemplate>
                     <ViewCell>
                         <StackLayout Orientation="Horizontal" Padding="5">
-                            <Image Source="{Binding ImageSource}"   
+                            <Image Source="{Binding ImageUrl}"   
                                     WidthRequest="100"
                                     BackgroundColor="Silver"
                                     HorizontalOptions="Start" />
