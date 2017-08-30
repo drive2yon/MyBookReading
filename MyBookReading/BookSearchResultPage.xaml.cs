@@ -35,19 +35,7 @@ namespace MyBookReading
 		public Dictionary<string, string> Libkeys { set; get; }  //
 		public Uri CalilUrl { set; get; }   //個別の本のページ
         public Uri ReserveUrl { set; get; } //本の予約ページ
-        public CheckStatus SearchStatus {
-            set;
-    //        {
-    //            Status = value;
-    //            switch(Status)
-    //            {
-    //                case CheckStatus.OK: StatusString = "OK"; break;
-				//	case CheckStatus.Cache: StatusString = "OK"; break;
-				//	case CheckStatus.Running: StatusString = "蔵書検索中"; break;
-				//	case CheckStatus.Error: StatusString = "蔵書検索失敗"; break;
-				//}
-            //}
-            get; }
+        public CheckStatus SearchStatus { set; get; }
         public string StatusString { private set; get; }
         public string SystemId { set; get; }
         public string BookStatus
@@ -128,13 +116,15 @@ namespace MyBookReading
 
             CalilKey = CalilCredentials.LoadCredentialsFile();
 
-            list.ItemSelected += (sender, e) =>
+            list.ItemSelected += async (sender, e) =>
             {
 				if (e.SelectedItem == null)
 				{
 					return;
 				}
 				((ListView)sender).SelectedItem = null;
+
+                await Navigation.PushAsync(new BookDetailPage((SearchResultBook)(e.SelectedItem)));				
 			};
 
     		CheckBooks(books);
