@@ -1,9 +1,23 @@
 ﻿using System;
+using System.Collections.Generic;
 using Realms;
 using Xamarin.Forms;
 
 namespace MyBookReading
 {
+    public class BookViewModel
+    {
+		readonly Realm _realm;
+
+		public IEnumerable<Book> Books { get; }
+
+		public BookViewModel()
+		{
+			_realm = Realm.GetInstance();
+			Books = _realm.All<Book>();
+		}
+    }
+
     public class Book : RealmObject
     {
         //Amazon
@@ -13,8 +27,13 @@ namespace MyBookReading
         public string MediumImageURL { get; set; }
         public string LargeImageURL { get; set; }
 
-        //Coomon
-        public string ISBN { get; set; }
+		//Calil
+		public string CalilUrl { set; get; }   //個別の本のページ
+		public string ReserveUrl { set; get; } //図書館の本の予約ページ
+
+
+		//Coomon
+		public string ISBN { get; set; }
         public string Title { get; set; }
         public string Author { get; set; }
         public string Publisher { get; set; }
@@ -23,6 +42,8 @@ namespace MyBookReading
         //public string Category { get; set; }
 
         public string ImageUrl { get; set; }
+        
+
 
         //private string _imageUrl { get; set; }
         //public string ImageUrl

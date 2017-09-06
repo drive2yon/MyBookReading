@@ -1,156 +1,84 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.IO;
 using System.Linq;
-using System.Net;
 using System.Text;
 using Karamem0.LinqToCalil;
 using MyBookReading.Model;
 using Realms;
 using Xamarin.Forms;
-using System.ComponentModel;
 using System.Threading.Tasks;
+using MyBookReading.ViewModel;
 
 namespace MyBookReading
 {
-	public enum CheckStatus
-	{
-        None,
-		OK,
-		Cache,
-		Running,
-		Error
-	}    
-    public class SearchResultBook : INotifyPropertyChanged
-    {
-		public event PropertyChangedEventHandler PropertyChanged = delegate { };
-
-        public Book book;
-		//Amazon
-        public string ASIN { get { return book.ASIN;} }
-		public string AmazonDetailPageURL { get{ return book.AmazonDetailPageURL;} }
-		public string SmallImageURL { get{ return book.SmallImageURL;} }
-		public string MediumImageURL { get{return book.MediumImageURL;} }
-		public string LargeImageURL { get{return book.LargeImageURL;} }
-
-		//Coomon
-		public string ISBN { get{return book.ISBN;} }
-		public string Title { get{return book.Title;} }
-		public string Author { get{return book.Author;} }
-		public string Publisher { get{return book.Publisher;} }
-        public string PublishedDate { get{return book.PublishedDate;} }
-		//public string Description { get{book.;} }
-		//public string Category { get{book.;} }
-		public string ImageUrl { get{return book.ImageUrl;} }
-
-		/// <summary>
-		/// システムIDに紐尽く図書館のキーの配列です。
-		/// < 図書館館キー, 貸出状況（「貸出中」、「貸出可」など）>
-		/// 蔵書がない場合は、図書館キー自体が配列に含まれない。
-		/// </summary>
-		/// <value>The libkeys.</value>
-		public Dictionary<string, string> Libkeys { set; get; }  //
-		public Uri CalilUrl { set; get; }   //個別の本のページ
-        public Uri ReserveUrl { set; get; } //本の予約ページ
-        public CheckStatus SearchStatus { set; get; }
-        public string StatusString { private set; get; }
-        public string SystemId { set; get; }
-        public string BookStatus
-        {
-            get
-            {
-                if(SearchStatus == CheckStatus.Running)
-                {
-                    return "蔵書検索中";
-                }
-                else if(SearchStatus == CheckStatus.Error)
-                {
-					return "蔵書検索失敗";
-				}
-                else
-                {
-					if (Libkeys == null || Libkeys.Count == 0)
-					{
-						return "蔵書なし";
-					}
-					else
-					{
-						return "蔵書あり";
-					}
-				}
-            }
-        }
-
-        public void InitBook(Book book)
-        {
-            this.book = book;
-            //base.Init(book);
-        }
-
-		public void Update(CalilCheckResult item)
-		{
-			CalilUrl = item.CalilUrl;
-			Libkeys = item.Libkeys;
-			ReserveUrl = item.ReserveUrl;
-			SearchStatus = ConvertStatus(item.Status);
-			SystemId = item.SystemId;
-			PropertyChanged(this, new PropertyChangedEventArgs("Libkeys"));
-			PropertyChanged(this, new PropertyChangedEventArgs("SearchStatus"));
-			PropertyChanged(this, new PropertyChangedEventArgs("BookStatus"));
-		}
-
-		private CheckStatus ConvertStatus(CheckState state)
-		{
-			switch (state)
-			{
-				case CheckState.OK: return CheckStatus.OK;
-				case CheckState.Cache: return CheckStatus.Cache;
-				case CheckState.Running: return CheckStatus.Running;
-				case CheckState.Error: return CheckStatus.Error;
-				default: return CheckStatus.None;
-			}
-		}
-
-	};
-
     public partial class BookSearchResultPage : ContentPage
     {
-        CalilCredentials CalilKey;
         ObservableCollection<SearchResultBook> BookResultList = new ObservableCollection<SearchResultBook>();
-        public BookSearchResultPage( string keyword, AmazonCredentials amazonKey, ObservableCollection<Book> books )
+        public BookSearchResultPage( IEnumerable<Book> books, bool IsBookSearch )
         {
             InitializeComponent();
 
-            foreach(var book in books)
-            {
-                var bookResult = new SearchResultBook();
-                bookResult.InitBook(book);
-                BookResultList.Add(bookResult);
-            }
+            InitList( books, IsBookSearch );
+		}
+
+        async private void InitList(IEnumerable<Book> books, bool IsBookSearch)
+        {
+			if (!IsBookSearch)
+			{
+				ToolbarItems.Add(new ToolbarItem
+				{
+					Text = "[本の追加]",
+					Command = new Command(() => Navigation.PushAsync(new BookSearchPage()))
+				});
+				ToolbarItems.Add(new ToolbarItem
+				{
+					Text = "[設定]",
+					Command = new Command(() => Navigation.PushAsync(new SettingPage()))
+				});
+			}
+
+			foreach (var book in books)
+			{
+				var bookResult = new SearchResultBook();
+				bookResult.InitBook(book);
+				BookResultList.Add(bookResult);
+			}
 
 			this.BindingContext = BookResultList;
 
-            CalilKey = CalilCredentials.LoadCredentialsFile();
-
-            list.ItemSelected += async (sender, e) =>
-            {
+			listBook.ItemSelected += async (sender, e) =>
+			{
 				if (e.SelectedItem == null)
 				{
 					return;
 				}
 				((ListView)sender).SelectedItem = null;
-
-                await Navigation.PushAsync(new BookDetailPage((SearchResultBook)(e.SelectedItem)));				
+				SearchResultBook item = e.SelectedItem as SearchResultBook;
+				if (item != null)
+				{
+					await Navigation.PushAsync(new BookDetailPage(item.book));
+				}
 			};
 
-    		CheckBooks(books);
+            if(IsBookSearch)
+            {
+				CheckBooks(books);
+                //labelPublishedDate.IsVisible = true;
+                //labelSearchStatus.IsVisible = true;
+                //labelBookStatus.IsVisible = true;
+			}
+            else
+            {
+                //labelReadingStatus.IsVisible = true;
+            }
 		}
 
         //蔵書検索
-        private void CheckBooks(ObservableCollection<Book> books)
+        private void CheckBooks(IEnumerable<Book> books)
         {
-            StringBuilder systemidList = new StringBuilder();
+			CalilCredentials CalilKey = CalilCredentials.LoadCredentialsFile();
+			StringBuilder systemidList = new StringBuilder();
             using (var realm = Realm.GetInstance() )
             {
                 var librarys = realm.All<CheckTargetLibrary>();

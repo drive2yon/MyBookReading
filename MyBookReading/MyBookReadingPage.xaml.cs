@@ -12,24 +12,24 @@ namespace MyBookReading
         {
             InitializeComponent();
 
-            MyBookListPage myBookListPage = new MyBookListPage();
-            BookSearchPage bookSearchPage = new BookSearchPage();
+   //         MyBookListPage myBookListPage = new MyBookListPage();
+   //         BookSearchPage bookSearchPage = new BookSearchPage();
 
-            this.Children.Add(new NavigationPage(myBookListPage)
-            {
-				Title = "MyBook",
-				BarBackgroundColor = Color.Aquamarine,
-			});
-            this.Children.Add(new NavigationPage(bookSearchPage)
-            {
-                Title = "BookSearch",
-                BarBackgroundColor = Color.Aquamarine,
-            });
+   //         this.Children.Add(new NavigationPage(myBookListPage)
+   //         {
+			//	Title = "MyBook",
+			//	BarBackgroundColor = Color.Aquamarine,
+			//});
+            //this.Children.Add(new NavigationPage(bookSearchPage)
+            //{
+            //    Title = "BookSearch",
+            //    BarBackgroundColor = Color.Aquamarine,
+            //});
 
-            myBookListPage.Title = "MyBook";
-            bookSearchPage.Title = "BookSearch";
+            //myBookListPage.Title = "MyBook";
+            //bookSearchPage.Title = "BookSearch";
 
-            this.Title = "My Book Reading";
+            //this.Title = "My Book Reading";
         }
     }
 }

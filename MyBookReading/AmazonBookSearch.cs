@@ -124,6 +124,7 @@ namespace MyBookReading
 						else if (elemItems.Name.LocalName == "Item")
 						{
                             bool addBook = true;
+                            bool validISBN = false;
 							Book book = new Book();
 							foreach (XElement elemItem in elemItems.Elements())
 							{
@@ -184,6 +185,7 @@ namespace MyBookReading
                                         else if (elemItemAttributes.Name.LocalName == "ISBN")
                                         {
 											book.ISBN = elemItemAttributes.Value;
+                                            validISBN = true;   //ISBNが無いものは個人販売等なので除外
 										}
 										else if (elemItemAttributes.Name.LocalName == "PublicationDate")
 										{
@@ -201,7 +203,7 @@ namespace MyBookReading
 									}
 								}
 							}
-                            if (addBook)
+                            if (addBook && validISBN)
                             {
                                 booksResult.Add(book);
                             }

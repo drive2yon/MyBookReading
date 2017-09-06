@@ -4,33 +4,40 @@
     xmlns:local="clr-namespace:MyBookReading;assembly=MyBookReading"
     x:Class="MyBookReading.MyBookListPage">
 	<ContentPage.Content>
-        <ListView x:Name="list"
+        <ListView x:Name="listBook"
             ItemsSource="{Binding}"
             VerticalOptions="FillAndExpand"
             RowHeight="100">
-
+            
             <ListView.ItemTemplate>
                 <DataTemplate>
                     <ViewCell>
                         <StackLayout Orientation="Horizontal" Padding="5">
                             <Image Source="{Binding ImageUrl}"   
-                                    WidthRequest="100"
-                                    BackgroundColor="Silver"
-                                    HorizontalOptions="Start" />
+                                    HorizontalOptions="Start"
+                                    WidthRequest="100"/>
                             <StackLayout Orientation="Vertical" Padding="5">
                                 <Label Text="{Binding Title}"
-                                        Style="{DynamicResource TitleStyle}" />
+                                       LineBreakMode="TailTruncation"
+                                       FontSize="16"/>
                                 <Label Text="{Binding Author}" 
+                                        LineBreakMode="TailTruncation"
                                         TextColor="Navy"
                                         FontSize="12"
                                         HorizontalOptions="Start" />
-                                <local:RatingStars Rating="{Binding Rating}"
-                                                    Reviews="{Binding Reviews}"/>
+                                <StackLayout Orientation="Horizontal" Padding="5">
+                                        <Label x:Name="labelReadingStatus"
+                                                Text="{Binding ReadingStatus}" 
+                                                LineBreakMode="WordWrap"
+                                                TextColor="Navy"
+                                                FontSize="12"
+                                                IsVisible="false"
+                                                HorizontalOptions="Start" />
+                                </StackLayout>
                             </StackLayout>
                         </StackLayout>
                     </ViewCell>
                 </DataTemplate>
             </ListView.ItemTemplate>
-        </ListView>
-	</ContentPage.Content>    
+        </ListView> </ContentPage.Content>    
 </ContentPage>

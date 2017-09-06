@@ -70,7 +70,7 @@ namespace MyBookReading
             }
             else
             {
-				await Navigation.PushAsync( new BookSearchResultPage(keyword, amazonKey, books) );
+				await Navigation.PushAsync( new BookSearchResultPage(books, false) );
 				cvLayer.IsVisible = frLayer.IsVisible = false;
 				return;
 			}

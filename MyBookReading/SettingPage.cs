@@ -9,8 +9,6 @@ namespace MyBookReading
 {
     public class SettingPage : ContentPage
     {
-        public CheckTargetLibrarysViewModel CheckTargetLibraryVM;
-
 		class LibraryCell : ViewCell
 		{
             public LibraryCell()
@@ -63,7 +61,7 @@ namespace MyBookReading
 
         public SettingPage()
         {
-            BindingContext = new CheckTargetLibrarysViewModel();// CheckTargetLibraryVM;
+            BindingContext = new CheckTargetLibrarysViewModel();
 
             this.Title = "設定";
 

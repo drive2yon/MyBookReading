@@ -4,7 +4,7 @@
     xmlns:local="clr-namespace:MyBookReading;assembly=MyBookReading"
             x:Class="MyBookReading.BookSearchResultPage">
 	<ContentPage.Content>
-        <ListView x:Name="list"
+        <ListView x:Name="listBook"
             ItemsSource="{Binding}"
             VerticalOptions="FillAndExpand"
             RowHeight="100">
@@ -26,25 +26,26 @@
                                         FontSize="12"
                                         HorizontalOptions="Start" />
                                 <StackLayout Orientation="Horizontal" Padding="5">
-                                        <Label Text="{Binding ISBN}" 
+                                        <Label x:Name="labelPublishedDate"
+                                                Text="{Binding PublishedDate}" 
                                                 LineBreakMode="TailTruncation"
                                                 TextColor="Navy"
                                                 FontSize="12"
+                                                IsVisible="false"
                                                 HorizontalOptions="Start" />
-                                        <Label Text="{Binding PublishedDate}" 
+                                        <Label x:Name="labelSearchStatus"
+                                                Text="{Binding SearchStatus}" 
                                                 LineBreakMode="TailTruncation"
                                                 TextColor="Navy"
                                                 FontSize="12"
+                                                IsVisible="false"
                                                 HorizontalOptions="Start" />
-                                        <Label Text="{Binding SearchStatus}" 
+                                        <Label x:Name="labelBookStatus"
+                                                Text="{Binding BookStatus}" 
                                                 LineBreakMode="TailTruncation"
                                                 TextColor="Navy"
                                                 FontSize="12"
-                                                HorizontalOptions="Start" />
-                                        <Label Text="{Binding BookStatus}" 
-                                                LineBreakMode="TailTruncation"
-                                                TextColor="Navy"
-                                                FontSize="12"
+                                                IsVisible="false"
                                                 HorizontalOptions="Start" />
                                 </StackLayout>
                             </StackLayout>

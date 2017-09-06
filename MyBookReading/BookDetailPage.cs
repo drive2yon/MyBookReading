@@ -7,7 +7,7 @@ namespace MyBookReading
 {
     public class BookDetailPage : ContentPage
     {
-        public BookDetailPage(SearchResultBook book)
+        public BookDetailPage(Book book)
         {
             this.Padding = new Thickness(10);
 
@@ -21,7 +21,7 @@ namespace MyBookReading
 					{
 						realm.Write(() =>
 						{
-							realm.Add(book.book);
+							realm.Add(book);
 						});
 					}
                 })
@@ -31,24 +31,50 @@ namespace MyBookReading
             {
                 Text = "Goto Amazon",
             };
-            amazonButton.Clicked += (sender, e) =>
-            {
-                DependencyService.Get<IWebBrowserService>().Open(new Uri(book.book.AmazonDetailPageURL));                
-            };
+			var libraryButton = new Button
+			{
+				Text = "Goto 図書館予約ページ",
+			};
+			var CalilButton = new Button
+			{
+				Text = "Goto Calilページ",
+			};
 
-            Content = new StackLayout
+			amazonButton.Clicked += (sender, e) =>
+            {
+                if(book.AmazonDetailPageURL != null)
+                {
+					DependencyService.Get<IWebBrowserService>().Open(new Uri(book.AmazonDetailPageURL));
+				}
+            };
+			libraryButton.Clicked += (sender, e) =>
+			{
+                if (book.ReserveUrl != null)
+                {
+                    DependencyService.Get<IWebBrowserService>().Open(new Uri(book.ReserveUrl));
+                }
+			};
+			CalilButton.Clicked += (sender, e) =>
+			{
+                if(book.CalilUrl != null)
+                {
+					DependencyService.Get<IWebBrowserService>().Open(new Uri(book.CalilUrl));
+				}
+			};
+
+			Content = new StackLayout
             {
                 Spacing = 10,
                 Children =
                 {
                     new Label
                     {
-                        Text = book.book.Title,
+                        Text = book.Title,
                         FontSize = Device.GetNamedSize(NamedSize.Large, typeof(Label))
                     },
                     new Label
                     {
-                        Text = book.book.Author,
+                        Text = book.Author,
                         FontSize = Device.GetNamedSize(NamedSize.Medium, typeof(Label))
                     },
 
@@ -60,7 +86,7 @@ namespace MyBookReading
                             new Image
                             {
                                 Source = new UriImageSource{
-                                    Uri = new Uri(book.book.ImageUrl),
+                                    Uri = new Uri(book.ImageUrl),
                                     CachingEnabled = true
                                 },
                                 WidthRequest = 100,
@@ -81,7 +107,7 @@ namespace MyBookReading
     								},
     								new Label
     								{
-    									Text = book.book.Publisher,
+    									Text = book.Publisher,
     								},
     								new Label
     								{
@@ -89,13 +115,15 @@ namespace MyBookReading
     								},
     								new Label
     								{
-    									Text = book.book.PublishedDate,
+    									Text = book.PublishedDate,
     								},
 								},
 							},
 						},
                     },
 					amazonButton,
+                    libraryButton,
+                    CalilButton,
 				}
             };
         }
