@@ -1,7 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.Linq;
 using Realms;
-using Xamarin.Forms;
 
 namespace MyBookReading
 {
@@ -15,6 +14,19 @@ namespace MyBookReading
 		{
 			_realm = Realm.GetInstance();
 			Books = _realm.All<Book>();
+		}
+
+        public Book GetRegistBook(Book book)
+        {
+            var books = _realm.All<Book>().Where(b => b.ISBN == book.ISBN);
+            if(books.Count() == 0)
+            {
+                return null;
+            }
+            else
+            {
+                return books.First();
+            }
 		}
     }
 
@@ -42,56 +54,57 @@ namespace MyBookReading
         //public string Category { get; set; }
 
         public string ImageUrl { get; set; }
-        
 
+		//既読 未読
+        public string ReadingStatus { get; set; }
 
-        //private string _imageUrl { get; set; }
-        //public string ImageUrl
-        //{
-        //    get
-        //    {
-        //        return this._imageUrl;
-        //    }
-        //    set
-        //    {
-        //        makeImageSource(value);
-        //        this._imageUrl = value;
-        //    }
-        //}
-
-        public int Rating { get; set; }
+		public int Rating { get; set; }
         public int Reviews { get; set; }
+
+		//private string _imageUrl { get; set; }
+		//public string ImageUrl
+		//{
+		//    get
+		//    {
+		//        return this._imageUrl;
+		//    }
+		//    set
+		//    {
+		//        makeImageSource(value);
+		//        this._imageUrl = value;
+		//    }
+		//}
 
 
 		//public UriImageSource ImageSource { get; set; }  //for image cache
-  //      private void makeImageSource( string url )
-  //      {
-  //          ImageSource = new UriImageSource
-  //          {
+		//      private void makeImageSource( string url )
+		//      {
+		//          ImageSource = new UriImageSource
+		//          {
 		//		Uri = new Uri(url),
 		//		CachingEnabled = true,
 		//		CacheValidity = new TimeSpan(1, 0, 0, 0)
 		//	};
 		//}
 
-     //   public void Init(Book book)
-     //   {
-     //       ASIN = book.ASIN;
-     //       AmazonDetailPageURL = book.AmazonDetailPageURL;
-     //       SmallImageURL = book.SmallImageURL;
-     //       MediumImageURL = book.MediumImageURL;
-     //       LargeImageURL = book.LargeImageURL;
+		//   public void Init(Book book)
+		//   {
+		//       ASIN = book.ASIN;
+		//       AmazonDetailPageURL = book.AmazonDetailPageURL;
+		//       SmallImageURL = book.SmallImageURL;
+		//       MediumImageURL = book.MediumImageURL;
+		//       LargeImageURL = book.LargeImageURL;
 
-     //       ISBN = book.ISBN;
-     //       Title = book.Title;
-     //       Author = book.Author;
-     //       Publisher = book.Publisher;
-     //       PublishedDate = book.PublishedDate;
+		//       ISBN = book.ISBN;
+		//       Title = book.Title;
+		//       Author = book.Author;
+		//       Publisher = book.Publisher;
+		//       PublishedDate = book.PublishedDate;
 
-     //       ImageUrl = book.ImageUrl;
+		//       ImageUrl = book.ImageUrl;
 
-     //       Rating = book.Rating;
-     //       Reviews = book.Reviews;
-    	//}
-    }
+		//       Rating = book.Rating;
+		//       Reviews = book.Reviews;
+		//}
+	}
 }

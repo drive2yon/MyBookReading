@@ -9,10 +9,7 @@ namespace MyBookReading
         {
             InitializeComponent();
 
-            //MainPage = new NavigationPage( new MyBookListPage() );
-            BookViewModel vm = new BookViewModel();
-
-            MainPage = new NavigationPage(new MyBookListPage( vm.Books, false ));
+            MainPage = new NavigationPage(new MyBookListPage());
         }
 
         protected override void OnStart()

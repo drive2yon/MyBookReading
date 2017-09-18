@@ -4,11 +4,24 @@
     xmlns:local="clr-namespace:MyBookReading;assembly=MyBookReading"
             x:Class="MyBookReading.BookSearchResultPage">
 	<ContentPage.Content>
+        <StackLayout Orientation="Vertical">
         <ListView x:Name="listBook"
-            ItemsSource="{Binding}"
+            ItemsSource="{Binding BookResultList}"
+            Header="{Binding Intro}"
+            Footer="{Binding Summary}"            
             VerticalOptions="FillAndExpand"
             RowHeight="100">
-
+            <ListView.HeaderTemplate >
+              <DataTemplate>
+                <StackLayout Orientation="Horizontal" 
+                    Padding="10,5,5,10"
+                    BackgroundColor="Yellow">
+                  <Label Text="~~"/>
+                  <Label Text="{Binding .}"/>
+                  <Label Text="~~"/>
+                </StackLayout>
+              </DataTemplate>
+            </ListView.HeaderTemplate>
             <ListView.ItemTemplate>
                 <DataTemplate>
                     <ViewCell>
@@ -25,33 +38,21 @@
                                         TextColor="Navy"
                                         FontSize="12"
                                         HorizontalOptions="Start" />
-                                <StackLayout Orientation="Horizontal" Padding="5">
-                                        <Label x:Name="labelPublishedDate"
-                                                Text="{Binding PublishedDate}" 
-                                                LineBreakMode="TailTruncation"
-                                                TextColor="Navy"
-                                                FontSize="12"
-                                                IsVisible="false"
-                                                HorizontalOptions="Start" />
-                                        <Label x:Name="labelSearchStatus"
-                                                Text="{Binding SearchStatus}" 
-                                                LineBreakMode="TailTruncation"
-                                                TextColor="Navy"
-                                                FontSize="12"
-                                                IsVisible="false"
-                                                HorizontalOptions="Start" />
-                                        <Label x:Name="labelBookStatus"
-                                                Text="{Binding BookStatus}" 
-                                                LineBreakMode="TailTruncation"
-                                                TextColor="Navy"
-                                                FontSize="12"
-                                                IsVisible="false"
-                                                HorizontalOptions="Start" />
-                                </StackLayout>
+                                <Label  Text="{Binding SearchBookStatus}"
+                                        TextColor="{Binding SearchBookStatusColor}"
+                                        FontSize="12"
+                                        HorizontalOptions="Start" />
                             </StackLayout>
                         </StackLayout>
                     </ViewCell>
                 </DataTemplate>
             </ListView.ItemTemplate>
-        </ListView>	</ContentPage.Content>
+        </ListView>
+        <Label x:Name="labelFooterStatusBar"
+                BackgroundColor="Navy"
+                TextColor="Silver"
+                LineBreakMode="MiddleTruncation"
+                Text="{Binding Status}"/>
+    </StackLayout>        
+    </ContentPage.Content>
 </ContentPage>
