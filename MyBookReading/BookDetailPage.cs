@@ -7,37 +7,38 @@ namespace MyBookReading
 {
     public class BookDetailPage : ContentPage
     {
-        public BookDetailPage(Book book)
+        Label LabelNoReading;
+        Label LabelReading;
+        Switch SwitchReading;
+        Editor EditorNote;
+        Book book;
+
+		public BookDetailPage(BookShelf bookShelf, Book book, bool isRegist)
         {
             this.Padding = new Thickness(10);
-
+            this.book = book;
 
 			ToolbarItems.Add(new ToolbarItem
 			{
 				Text = "[本の登録]",
 				Command = new Command(() =>
                 {
-					using (var realm = Realm.GetInstance())
-					{
-						realm.Write(() =>
-						{
-							realm.Add(book);
-						});
-					}
+                    string readingStatus = SwitchReading.IsToggled ? "既読" : "未読";
+                    bookShelf.SaveBook(book, isRegist, readingStatus, EditorNote.Text);
                 })
 			});
 
 			var amazonButton = new Button
             {
-                Text = "Goto Amazon",
+                Text = "Amazon",
             };
 			var libraryButton = new Button
 			{
-				Text = "Goto 図書館予約ページ",
+				Text = "図書館予約",
 			};
 			var CalilButton = new Button
 			{
-				Text = "Goto Calilページ",
+				Text = "Calil",
 			};
 
 			amazonButton.Clicked += (sender, e) =>
@@ -62,71 +63,151 @@ namespace MyBookReading
 				}
 			};
 
-			Content = new StackLayout
+            LabelNoReading = new Label
             {
-                Spacing = 10,
-                Children =
-                {
-                    new Label
-                    {
-                        Text = book.Title,
-                        FontSize = Device.GetNamedSize(NamedSize.Large, typeof(Label))
-                    },
-                    new Label
-                    {
-                        Text = book.Author,
-                        FontSize = Device.GetNamedSize(NamedSize.Medium, typeof(Label))
-                    },
+                Text = "未読",
+                FontSize = Device.GetNamedSize(NamedSize.Medium, typeof(Label))
+            };
+            LabelReading = new Label
+            {
+                Text = "既読",
+                FontSize = Device.GetNamedSize(NamedSize.Medium, typeof(Label))
+            };
+            SwitchReading = new Switch
+            {
+                IsToggled = book.ReadingStatus != null ? book.ReadingStatus.Equals("既読") : false,
+                HorizontalOptions = LayoutOptions.End,
+            };
+            UpdateReadingToggle(SwitchReading.IsToggled);
 
-                    new StackLayout
-                    {
-                        Orientation = StackOrientation.Horizontal,
-                        Children =
+			SwitchReading.Toggled += (sender, e) =>
+			{
+                UpdateReadingToggle(e.Value);
+			};
+
+            EditorNote = new Editor
+            {
+                FontSize = Device.GetNamedSize(NamedSize.Medium, typeof(Label))
+            };
+
+
+            ScrollView scrollView = new ScrollView
+            {
+				VerticalOptions = LayoutOptions.FillAndExpand,
+				Content = new StackLayout
+				{
+					Spacing = 10,
+					Children =
+    				{
+    					new Label
+    					{
+    						Text = book.Title,
+    						FontSize = Device.GetNamedSize(NamedSize.Large, typeof(Label))
+    					},
+    					new Label
+    					{
+    						Text = book.Author,
+    						FontSize = Device.GetNamedSize(NamedSize.Medium, typeof(Label))
+    					},
+
+    					new StackLayout
+    					{
+    						Orientation = StackOrientation.Horizontal,
+    						Children =
+    						{
+    							new Image
+    							{
+    								Source = new UriImageSource{
+    									Uri = new Uri(book.ImageUrl),
+    									CachingEnabled = true
+    								},
+    								WidthRequest = 100,
+    								HeightRequest = 160,
+    								HorizontalOptions = LayoutOptions.Start,
+    								VerticalOptions = LayoutOptions.Start,
+    								Aspect = Aspect.AspectFit,
+    							},
+
+    							new StackLayout
+    							{
+    								Spacing = 10,
+    								Children =
+    								{
+    									new Label
+    									{
+    										Text = "出版社",
+    									},
+    									new Label
+    									{
+    										Text = book.Publisher,
+    									},
+    									new Label
+    									{
+    										Text = "発売日",
+    									},
+    									new Label
+    									{
+    										Text = book.PublishedDate,
+    									},
+    								},
+    							},
+    						},
+    					},
+                        new Label
                         {
-                            new Image
+                            Text = "詳細ページ",
+                        },
+						new StackLayout
+                        {
+							Orientation = StackOrientation.Horizontal,
+                            Children = 
                             {
-                                Source = new UriImageSource{
-                                    Uri = new Uri(book.ImageUrl),
-                                    CachingEnabled = true
-                                },
-                                WidthRequest = 100,
-                                HeightRequest = 160,
-                                HorizontalOptions = LayoutOptions.Start,
-                                VerticalOptions = LayoutOptions.Start,
-                                Aspect = Aspect.AspectFit,
-                            },
-
-                            new StackLayout
-                            {
-                                Spacing = 10,
-                                Children = 
-                                {
-    								new Label
-    								{
-    									Text = "出版社",
-    								},
-    								new Label
-    								{
-    									Text = book.Publisher,
-    								},
-    								new Label
-    								{
-    									Text = "発売日",
-    								},
-    								new Label
-    								{
-    									Text = book.PublishedDate,
-    								},
-								},
+        						amazonButton,
+        						libraryButton,
+        						CalilButton,
 							},
 						},
-                    },
-					amazonButton,
-                    libraryButton,
-                    CalilButton,
-				}
-            };
+						new StackLayout
+    					{
+    						Orientation = StackOrientation.Horizontal,
+    						Children =
+    						{
+    							LabelNoReading,
+    							new Label
+    							{
+    								Text = " / ",
+    								FontSize = Device.GetNamedSize(NamedSize.Medium, typeof(Label))
+    							},
+    							LabelReading,
+    							SwitchReading,
+    						},
+    					},
+    					new Label
+    					{
+    						Text = "読書メモ",
+    						FontSize = Device.GetNamedSize(NamedSize.Medium, typeof(Label))
+    					},
+                        EditorNote,
+    				}
+				},
+			};
+            Content = scrollView;
+
+
         }
+        void UpdateReadingToggle(bool bReading)
+        {
+			if (bReading)
+			{
+				LabelNoReading.TextColor = Color.Gray;
+				LabelReading.TextColor = Color.Blue;
+			}
+			else
+			{
+				LabelNoReading.TextColor = Color.Blue;
+				LabelReading.TextColor = Color.Gray;
+			}
+		}
     }
 }
 

@@ -26,12 +26,14 @@
                                         FontSize="12"
                                         HorizontalOptions="Start" />
                                 <StackLayout Orientation="Horizontal" Padding="5">
-                                        <Label x:Name="labelReadingStatus"
-                                                Text="{Binding ReadingStatus}" 
-                                                LineBreakMode="WordWrap"
+                                        <Label Text="{Binding ReadingStatus}" 
                                                 TextColor="Navy"
                                                 FontSize="12"
-                                                IsVisible="false"
+                                                HorizontalOptions="Start" />
+                                        <Label Text="{Binding Note}" 
+                                                LineBreakMode="TailTruncation"
+                                                TextColor="Navy"
+                                                FontSize="12"
                                                 HorizontalOptions="Start" />
                                 </StackLayout>
                             </StackLayout>

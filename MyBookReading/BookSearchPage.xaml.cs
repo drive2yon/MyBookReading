@@ -10,10 +10,12 @@ namespace MyBookReading
 {
     public partial class BookSearchPage : ContentPage
     {
+        BookShelf bookShelf;
         AmazonCredentials amazonKey;
         private bool bSearchTitle;
-        public BookSearchPage()
+        public BookSearchPage(BookShelf bookShelf)
         {
+            this.bookShelf = bookShelf;
             amazonKey = LoadCredentialsFile();
             InitializeComponent();
 			this.Appearing += (object sender, System.EventArgs e) => this.entryTitle.Focus();
@@ -70,7 +72,7 @@ namespace MyBookReading
             }
             else
             {
-				await Navigation.PushAsync( new BookSearchResultPage(search, books) );
+				await Navigation.PushAsync( new BookSearchResultPage(this.bookShelf, search, books) );
 				cvLayer.IsVisible = frLayer.IsVisible = false;
 				return;
 			}

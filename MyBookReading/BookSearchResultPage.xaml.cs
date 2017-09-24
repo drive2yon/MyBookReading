@@ -30,20 +30,20 @@ namespace MyBookReading
     public partial class BookSearchResultPage : ContentPage
     {
         SearchResultVM SearchResultVM;
-        public BookSearchResultPage(AmazonBookSearch search, ObservableCollection<Book> books)
+        public BookSearchResultPage(BookShelf bookshelf, AmazonBookSearch search, ObservableCollection<Book> books)
         {
             InitializeComponent();
 
-            InitList(books);
+            InitList(bookshelf, books);
         }
 
-        async private void InitList(ObservableCollection<Book> books)
+        async private void InitList(BookShelf bookshelf, ObservableCollection<Book> books)
         {
             ObservableCollection<ViewModel.SearchResultBook> resultList = new ObservableCollection<ViewModel.SearchResultBook>();
             {
 
                 //本棚に登録済みか判定する
-                BookViewModel bookVM = new BookViewModel();
+                BookShelf bookVM = new BookShelf();
                 foreach (var book in books)
                 {
                     var bookResult = new ViewModel.SearchResultBook();
@@ -77,8 +77,7 @@ namespace MyBookReading
                 ViewModel.SearchResultBook item = e.SelectedItem as ViewModel.SearchResultBook;
                 if (item != null)
                 {
-                    //詳細ページを開くためのBookインスタンスの撮り方は
-                    //await Navigation.PushAsync(new BookDetailPage(item.book));
+                    await Navigation.PushAsync(new BookDetailPage(bookshelf, item.CreateBook(), isRegist: false));
                 }
             };
 

@@ -4,13 +4,17 @@ using Realms;
 
 namespace MyBookReading
 {
-    public class BookViewModel
+    /// <summary>
+    /// 自分の本棚。ここに本を登録するとDBに追加する。
+    /// 本ののDB操作はこのクラスに集約する。
+    /// </summary>
+    public class BookShelf
     {
 		readonly Realm _realm;
 
 		public IEnumerable<Book> Books { get; }
 
-		public BookViewModel()
+		public BookShelf()
 		{
 			_realm = Realm.GetInstance();
 			Books = _realm.All<Book>();
@@ -28,6 +32,35 @@ namespace MyBookReading
                 return books.First();
             }
 		}
+
+		/// <summary>
+		/// 本を本棚に登録する。登録済みの場合は上書き更新する。
+		/// </summary>
+		/// <param name="book">Book.</param>
+		/// <param name="isRegist">If set to <c>true</c> is regist.</param>
+		/// <param name="ReadingStatus">Reading status.</param>
+		/// <param name="Note">Note.</param>
+		public void SaveBook(Book book, bool isRegist, string ReadingStatus, string Note)
+		{
+			if (isRegist)
+			{
+				//登録済みの場合はトランザクションの中でプロパティを更新する
+				_realm.Write(() =>
+				{
+					book.ReadingStatus = ReadingStatus;
+				    book.Note = Note;
+				});
+			}
+			else
+			{
+				book.ReadingStatus = ReadingStatus;
+				book.Note = Note;
+				_realm.Write(() =>
+				{
+					_realm.Add(book);
+				});
+			}
+		}
     }
 
     public class Book : RealmObject
@@ -43,68 +76,15 @@ namespace MyBookReading
 		public string CalilUrl { set; get; }   //個別の本のページ
 		public string ReserveUrl { set; get; } //図書館の本の予約ページ
 
-
 		//Coomon
 		public string ISBN { get; set; }
         public string Title { get; set; }
         public string Author { get; set; }
         public string Publisher { get; set; }
         public string PublishedDate { get; set; }
-        //public string Description { get; set; }
-        //public string Category { get; set; }
-
         public string ImageUrl { get; set; }
-
-		//既読 未読
-        public string ReadingStatus { get; set; }
-
-		public int Rating { get; set; }
-        public int Reviews { get; set; }
-
-		//private string _imageUrl { get; set; }
-		//public string ImageUrl
-		//{
-		//    get
-		//    {
-		//        return this._imageUrl;
-		//    }
-		//    set
-		//    {
-		//        makeImageSource(value);
-		//        this._imageUrl = value;
-		//    }
-		//}
-
-
-		//public UriImageSource ImageSource { get; set; }  //for image cache
-		//      private void makeImageSource( string url )
-		//      {
-		//          ImageSource = new UriImageSource
-		//          {
-		//		Uri = new Uri(url),
-		//		CachingEnabled = true,
-		//		CacheValidity = new TimeSpan(1, 0, 0, 0)
-		//	};
-		//}
-
-		//   public void Init(Book book)
-		//   {
-		//       ASIN = book.ASIN;
-		//       AmazonDetailPageURL = book.AmazonDetailPageURL;
-		//       SmallImageURL = book.SmallImageURL;
-		//       MediumImageURL = book.MediumImageURL;
-		//       LargeImageURL = book.LargeImageURL;
-
-		//       ISBN = book.ISBN;
-		//       Title = book.Title;
-		//       Author = book.Author;
-		//       Publisher = book.Publisher;
-		//       PublishedDate = book.PublishedDate;
-
-		//       ImageUrl = book.ImageUrl;
-
-		//       Rating = book.Rating;
-		//       Reviews = book.Reviews;
-		//}
+        public string ReadingStatus { get; set; }   //既読 未読
+        public string Note { get; set; }            //自由メモ
+        public string RatingStar { get; set; }      //レート星(未使用)
 	}
 }

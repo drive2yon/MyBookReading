@@ -39,6 +39,9 @@ namespace MyBookReading.ViewModel
 		//public string Description { get{book.;} }
 		//public string Category { get{book.;} }
         public string ImageUrl { get; set; }
+		public string ReadingStatus { get; set; }   //既読 未読
+		public string Note { get; set; }            //自由メモ
+		public string RatingStar { get; set; }      //レート星
 
 		//for SearchResult
 		public bool IsRegistBookShelf { get; set; }
@@ -100,7 +103,6 @@ namespace MyBookReading.ViewModel
             }
         }
 
-        public string ReadingStatus { get; set; }
 
 		/// <summary>
 		/// システムIDに紐尽く図書館のキーの配列です。
@@ -158,13 +160,10 @@ namespace MyBookReading.ViewModel
             this.Author = book.Author;
             this.Publisher = book.Publisher;
             this.PublishedDate = book.PublishedDate;
-
-            //public string Description { get; set; }
-            //public string Category { get; set; }
-
             this.ImageUrl = book.ImageUrl;
-
             this.ReadingStatus = book.ReadingStatus;
+            this.Note = book.Note;
+            this.RatingStar = book.RatingStar;
 
     	}
 
@@ -199,5 +198,31 @@ namespace MyBookReading.ViewModel
 				default: return CheckStatus.None;
 			}
 		}
+
+        public Book CreateBook()
+        {
+            return new Book()
+            {
+                ASIN = this.ASIN,
+                AmazonDetailPageURL = this.AmazonDetailPageURL,
+                SmallImageURL = this.SmallImageURL,
+                MediumImageURL = this.MediumImageURL,
+                LargeImageURL = this.LargeImageURL,
+
+                CalilUrl = this.CalilUrl,
+                ReserveUrl = this.ReserveUrl,
+
+                ISBN = this.ISBN,
+                Title = this.Title,
+                Author = this.Author,
+                Publisher = this.Publisher,
+                PublishedDate = this.PublishedDate,
+                ImageUrl = this.ImageUrl,
+                ReadingStatus = this.ReadingStatus,
+                Note = this.Note,
+                RatingStar = this.RatingStar
+            };
+            
+        }
 	};
 }

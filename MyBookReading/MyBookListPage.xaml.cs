@@ -5,7 +5,7 @@ namespace MyBookReading
 {
     public partial class MyBookListPage : ContentPage
     {
-		BookViewModel bookVM = new BookViewModel();
+        BookShelf bookShelf = new BookShelf();
 
 		public MyBookListPage()
 		{
@@ -19,7 +19,7 @@ namespace MyBookReading
 			ToolbarItems.Add(new ToolbarItem
 			{
 				Text = "[本の追加]",
-				Command = new Command(() => Navigation.PushAsync(new BookSearchPage()))
+				Command = new Command(() => Navigation.PushAsync(new BookSearchPage(bookShelf)))
 			});
 			ToolbarItems.Add(new ToolbarItem
 			{
@@ -27,7 +27,7 @@ namespace MyBookReading
 				Command = new Command(() => Navigation.PushAsync(new SettingPage()))
 			});
 
-            this.BindingContext = bookVM.Books;
+            this.BindingContext = bookShelf.Books;
 
 			listBook.ItemSelected += async (sender, e) =>
 			{
@@ -40,7 +40,7 @@ namespace MyBookReading
 				if (item != null)
 				{
                     
-					await Navigation.PushAsync(new BookDetailPage(item));
+					await Navigation.PushAsync(new BookDetailPage(bookShelf, item, isRegist:true));
 				}
 			};
 		}
