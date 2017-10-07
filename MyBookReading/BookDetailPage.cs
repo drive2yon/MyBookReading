@@ -87,7 +87,8 @@ namespace MyBookReading
 
             EditorNote = new Editor
             {
-                FontSize = Device.GetNamedSize(NamedSize.Medium, typeof(Label))
+                FontSize = Device.GetNamedSize(NamedSize.Medium, typeof(Label)),
+                Text = book.Note == null ? "" : book.Note,
             };
 
 

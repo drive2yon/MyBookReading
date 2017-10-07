@@ -77,7 +77,7 @@ namespace MyBookReading
                 ViewModel.SearchResultBook item = e.SelectedItem as ViewModel.SearchResultBook;
                 if (item != null)
                 {
-                    await Navigation.PushAsync(new BookDetailPage(bookshelf, item.CreateBook(), isRegist: false));
+                    await Navigation.PushAsync(new BookDetailPage(bookshelf, item.CreateBook(), item.IsRegistBookShelf));
                 }
             };
 
