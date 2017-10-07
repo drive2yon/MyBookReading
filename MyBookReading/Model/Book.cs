@@ -61,6 +61,15 @@ namespace MyBookReading
 				});
 			}
 		}
+
+        public void DeleteBook(Book book)
+        {
+            using (var trans = _realm.BeginWrite())
+			{
+				_realm.Remove(book);
+				trans.Commit();
+			}
+        }
     }
 
     public class Book : RealmObject

@@ -75,7 +75,9 @@ namespace MyBookReading
                 }
                 ((ListView)sender).SelectedItem = null;
                 ViewModel.SearchResultBook item = e.SelectedItem as ViewModel.SearchResultBook;
-                if (item != null)
+
+                //本棚に登録済みの場合は詳細を表示しない
+                if (item != null && item.IsRegistBookShelf == false)
                 {
                     await Navigation.PushAsync(new BookDetailPage(bookshelf, item.CreateBook(), item.IsRegistBookShelf));
                 }

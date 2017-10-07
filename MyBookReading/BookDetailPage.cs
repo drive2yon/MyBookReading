@@ -18,15 +18,46 @@ namespace MyBookReading
             this.Padding = new Thickness(10);
             this.book = book;
 
-			ToolbarItems.Add(new ToolbarItem
-			{
-				Text = "[本の登録]",
-				Command = new Command(() =>
-                {
-                    string readingStatus = SwitchReading.IsToggled ? "既読" : "未読";
-                    bookShelf.SaveBook(book, isRegist, readingStatus, EditorNote.Text);
-                })
-			});
+            if(!isRegist)
+            {
+				ToolbarItems.Add(new ToolbarItem
+				{
+					Text = "[本の登録]",
+					Command = new Command(() =>
+					{
+						string readingStatus = SwitchReading.IsToggled ? "既読" : "未読";
+						bookShelf.SaveBook(book, isRegist, readingStatus, EditorNote.Text);
+					})
+				});
+            }
+            else
+            {
+				ToolbarItems.Add(new ToolbarItem
+				{
+					Text = "[本の保存]",
+					Command = new Command(() =>
+					{
+						string readingStatus = SwitchReading.IsToggled ? "既読" : "未読";
+						bookShelf.SaveBook(book, isRegist, readingStatus, EditorNote.Text);
+					})
+				});
+				ToolbarItems.Add(new ToolbarItem
+				{
+					Text = "[本の削除]",
+					Command = new Command(async () =>
+					{
+						bool ret = await DisplayAlert("本の削除", "本を削除します", "OK", "キャンセル");
+                        if (!ret)
+						{
+						    return;
+						}
+
+						bookShelf.DeleteBook(book);
+                        await Navigation.PopAsync(true);
+					})
+				});
+			}
+
 
 			var amazonButton = new Button
             {
