@@ -1,5 +1,4 @@
-﻿using MyBookReading.Model;
-using Xamarin.Forms;
+﻿using Xamarin.Forms;
 
 namespace MyBookReading
 {
@@ -9,7 +8,24 @@ namespace MyBookReading
         {
             InitializeComponent();
 
-            MainPage = new NavigationPage(new MyBookListPage());
+			if (Application.Current.Resources == null)
+			{
+				Application.Current.Resources = new ResourceDictionary();
+			}
+
+			var g_footerLabelStyle = new Style(typeof(Label))
+            {
+            	Setters = {
+                    
+            		new Setter { Property = Label.TextColorProperty, Value = Color.Silver },
+            		new Setter { Property = VisualElement.BackgroundColorProperty, Value = Color.Navy },
+                    new Setter { Property = Label.LineBreakModeProperty, Value = LineBreakMode.MiddleTruncation }, 
+            	}
+            };
+
+			Application.Current.Resources.Add("FooterLabelStyle", g_footerLabelStyle);
+
+			MainPage = new NavigationPage(new MyBookListPage());
         }
 
         protected override void OnStart()

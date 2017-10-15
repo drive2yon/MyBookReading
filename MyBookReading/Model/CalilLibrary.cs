@@ -18,7 +18,7 @@ namespace MyBookReading.Model
     /// <summary>
     /// ListView表示用
     /// </summary>
-    public class CheckTargetLibrarysViewModel
+    public class CheckTargetLibrarys
 	{
 		readonly Realm _realm;
 
@@ -27,7 +27,7 @@ namespace MyBookReading.Model
         //not use
 		//public Command<CheckTargetLibrary> DelLibraryCommand { get; }
 
-		public CheckTargetLibrarysViewModel()
+		public CheckTargetLibrarys()
 		{
 			_realm = Realm.GetInstance();
 			Librarys = _realm.All<CheckTargetLibrary>();
@@ -53,7 +53,7 @@ namespace MyBookReading.Model
 	{
 		public string category { get; set; }    //SMALL(図書室・公民館) MEDIUM(図書館(地域)) LARGE(図書館(広域)) UNIV(大学) SPECIAL(専門) BM(移動・BM)
 		public string city { get; set; }        //市区町村
-		public string Short { get; set; }       //略称        //小文字は予約後のため大文字にする。JSONパースには問題なし。
+        public string Short { get; set; }       //略称        //小文字(short)は予約語のため大文字にする。JSONパースには問題なし。
 		public string tel { get; set; }         //電話番号
 		public string pref { get; set; }        //都道府県
 		public string faid { get; set; }        //APIリファレンスに説明なし

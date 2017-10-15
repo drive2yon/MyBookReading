@@ -61,7 +61,7 @@ namespace MyBookReading
 
         public SettingPage()
         {
-            BindingContext = new CheckTargetLibrarysViewModel();
+            BindingContext = new CheckTargetLibrarys();
 
             this.Title = "設定";
 
@@ -79,7 +79,7 @@ namespace MyBookReading
 			ListView libraryListView = new ListView
 			{
 				ItemTemplate = new DataTemplate(typeof(LibraryCell)),//セルの指定
-				ItemsSource = ((CheckTargetLibrarysViewModel)BindingContext).Librarys,
+				ItemsSource = ((CheckTargetLibrarys)BindingContext).Librarys,
                 VerticalOptions = LayoutOptions.Start,
 			};
 
