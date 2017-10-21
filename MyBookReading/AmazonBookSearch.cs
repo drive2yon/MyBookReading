@@ -17,6 +17,10 @@ namespace MyBookReading
 		private const string DESTINATION = "ecs.amazonaws.jp";
 		const string END_POINT_JP = "ecs.amazonaws.jp";
 
+        private int RequestPageIdx = 1; //初期値１でmakeReqiestURLごとに+1する
+        private SearchType SearchBookType;
+        private string KeyWord;
+
         public enum SearchType
         {
             SearchBook_ByTitle,
@@ -30,13 +34,35 @@ namespace MyBookReading
 
         public async Task<bool> Search(SearchType searchType, string keyword, ObservableCollection<Book> booksResult)
         {
-            string url = makeRequestURL(searchType, keyword);
+			//最大10ページまでしか検索できない仕様とする
+			if (RequestPageIdx >= 10)
+			{
+				return false;
+			}else if(RequestPageIdx == 1)
+            {
+                SearchBookType = searchType;
+                KeyWord = keyword;
+			}
+
+			string url = makeRequestURL(searchType, keyword, RequestPageIdx);
+            RequestPageIdx++;
 			System.Diagnostics.Debug.WriteLine(url);
-			int retryCount = 0;
+            int retryCount = 0;
 			return await VisitUrl(url, booksResult, retryCount);
 		}
 
-		private string makeRequestURL(SearchType searchType, string keyWord)
+        /// <summary>
+        /// Continues the search.
+        /// ２ページ目以降を検索する場合に使う呼び出し
+        /// </summary>
+        /// <returns>The search.</returns>
+        /// <param name="booksResult">Books result.</param>
+		public async Task<bool> ContinueSearch(ObservableCollection<Book> booksResult)
+		{
+            return await Search(SearchBookType, KeyWord, booksResult);
+		}
+
+		private string makeRequestURL(SearchType searchType, string keyWord, int pageIndex)
 		{
             keyWord = System.Net.WebUtility.UrlEncode(keyWord);
 
@@ -49,8 +75,9 @@ namespace MyBookReading
 			string PARAM_TIME_STAMP = "&Timestamp=" + strTime.Replace(":", "%3A");
 			string PARAM_AWSKEY_AND_TAG = "AWSAccessKeyId=" + amazonKey.access_key_id + "&AssociateTag=" + amazonKey.associate_tag;
             string PARAM_KEYWORD;
-			const string PARAM_OPERATION = "&Operation=ItemSearch&ResponseGroup=Images%2CItemAttributes&SearchIndex=Books&Service=AWSECommerceService";
-			const string PARAM_VERSION = "&Version=2011-08-01";
+            string PARAM_PAGE = "&ItemPage=" + pageIndex.ToString();
+			string PARAM_OPERATION = "&Operation=ItemSearch&ResponseGroup=Images%2CItemAttributes&SearchIndex=Books&Service=AWSECommerceService";
+            const string PARAM_VERSION = "&Version=2011-08-01";
 			if(searchType == SearchType.SearchBook_ByTitle)
             {
 				PARAM_KEYWORD = "&Title=" + keyWord;
@@ -58,7 +85,7 @@ namespace MyBookReading
 				strBuilder.Append("GET\n")
 						  .Append(MARKET_PLACE_URL + "\n")
 						  .Append("/onca/xml\n")
-						  .Append(PARAM_AWSKEY_AND_TAG + PARAM_OPERATION + PARAM_TIME_STAMP + PARAM_KEYWORD + PARAM_VERSION);
+						  .Append(PARAM_AWSKEY_AND_TAG + PARAM_PAGE + PARAM_OPERATION + PARAM_TIME_STAMP + PARAM_KEYWORD + PARAM_VERSION);
 				string toBeSigned = strBuilder.ToString();
 				string signedString = signString(toBeSigned);
 
@@ -66,7 +93,7 @@ namespace MyBookReading
 				strBuilder.Append("http://")
 						  .Append(MARKET_PLACE_URL)
 						  .Append("/onca/xml?")
-						  .Append(PARAM_AWSKEY_AND_TAG + PARAM_OPERATION + PARAM_TIME_STAMP + PARAM_KEYWORD + PARAM_VERSION)
+                          .Append(PARAM_AWSKEY_AND_TAG + PARAM_PAGE + PARAM_OPERATION + PARAM_TIME_STAMP + PARAM_KEYWORD + PARAM_VERSION)
 						  .Append("&Signature=" + signedString);
 			}
             else
@@ -76,7 +103,7 @@ namespace MyBookReading
 				strBuilder.Append("GET\n")
 						  .Append(MARKET_PLACE_URL + "\n")
 						  .Append("/onca/xml\n")
-						  .Append(PARAM_AWSKEY_AND_TAG + PARAM_KEYWORD + PARAM_OPERATION + PARAM_TIME_STAMP + PARAM_VERSION);
+						  .Append(PARAM_AWSKEY_AND_TAG + PARAM_KEYWORD + PARAM_PAGE + PARAM_OPERATION + PARAM_TIME_STAMP + PARAM_VERSION);
 				string toBeSigned = strBuilder.ToString();
 				string signedString = signString(toBeSigned);
 
@@ -84,7 +111,7 @@ namespace MyBookReading
 				strBuilder.Append("http://")
 						  .Append(MARKET_PLACE_URL)
 						  .Append("/onca/xml?")
-						  .Append(PARAM_AWSKEY_AND_TAG + PARAM_KEYWORD + PARAM_OPERATION + PARAM_TIME_STAMP + PARAM_VERSION)
+						  .Append(PARAM_AWSKEY_AND_TAG + PARAM_KEYWORD + PARAM_PAGE + PARAM_OPERATION + PARAM_TIME_STAMP + PARAM_VERSION)
 						  .Append("&Signature=" + signedString);
 			}
 			System.Diagnostics.Debug.WriteLine(PARAM_KEYWORD);

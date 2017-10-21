@@ -16,28 +16,32 @@ namespace MyBookReading
     public partial class BookSearchResultPage : ContentPage
     {
         SearchResultVM SearchResultVM;
+        ObservableCollection<ViewModel.SearchResultBook> ResultBookList;
+        AmazonBookSearch SearchContext;
         public BookSearchResultPage(BookShelf bookshelf, AmazonBookSearch search, ObservableCollection<Book> books)
         {
             InitializeComponent();
 
+            SearchContext = search;
+
             InitList(bookshelf, books);
         }
 
+        private void addResultBook(ObservableCollection<Book> books, ObservableCollection<ViewModel.SearchResultBook> resultBooks)
+        {
+			foreach (var book in books)
+			{
+				var bookResult = new ViewModel.SearchResultBook(book);
+				resultBooks.Add(bookResult);
+			}
+		}
+
         async private void InitList(BookShelf bookshelf, ObservableCollection<Book> books)
         {
-            ObservableCollection<ViewModel.SearchResultBook> resultList = new ObservableCollection<ViewModel.SearchResultBook>();
-            {
+            ResultBookList = new ObservableCollection<ViewModel.SearchResultBook>();
+            addResultBook(books, ResultBookList);
 
-                //本棚に登録済みか判定する
-                BookShelf bookVM = new BookShelf();
-                foreach (var book in books)
-                {
-                    var bookResult = new ViewModel.SearchResultBook(book);
-                    resultList.Add(bookResult);
-                }
-            }
-
-            SearchResultVM = new SearchResultVM { BookResultList = resultList };
+            SearchResultVM = new SearchResultVM { BookResultList = ResultBookList };
             this.BindingContext = SearchResultVM;
 
             listBook.ItemSelected += async (sender, e) =>
@@ -56,7 +60,30 @@ namespace MyBookReading
                 }
             };
 
+            listBook.ItemAppearing += async (object sender, ItemVisibilityEventArgs e) => {
+            	// ObservableCollection の最後が ListView の Item と一致した時に ObservableCollection にデータを追加する。
+            	if (ResultBookList.Last() == e.Item as SearchResultBook)
+            	{
+            		// ObservableCollection にデータを追加する処理
+            		stack.IsVisible = true;
+            		await AmazonSearch(SearchContext); // 実際の処理を入れてください。
+            		stack.IsVisible = false;
+            	}
+            };
+
             SearchResultVM.CheckBooks(books);
+        }
+
+        async Task<bool> AmazonSearch(AmazonBookSearch search)
+        {
+            ObservableCollection<Book> books = new ObservableCollection<Book>();
+            bool ret = await search.ContinueSearch(books);
+            if(ret)
+            {
+				addResultBook(books, ResultBookList);
+				SearchResultVM.CheckBooks(books);
+			}
+            return ret;
         }
     }
 }

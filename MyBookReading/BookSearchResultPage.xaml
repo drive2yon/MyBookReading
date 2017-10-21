@@ -48,7 +48,13 @@
                 </DataTemplate>
             </ListView.ItemTemplate>
         </ListView>
-        <Label x:Name="labelFooterStatusBar"
+        <StackLayout x:Name="stack" 
+                        Padding="10"
+                        IsVisible="False">
+            <ActivityIndicator x:Name="indicator"
+                                IsRunning="True" />
+        </StackLayout>
+            <Label x:Name="labelFooterStatusBar"
                 BackgroundColor="Navy"
                 TextColor="Silver"
                 LineBreakMode="MiddleTruncation"
