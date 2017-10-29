@@ -6,7 +6,6 @@ using System.Linq;
 using System.Text;
 using Karamem0.LinqToCalil;
 using MyBookReading.Model;
-using Realms;
 using Xamarin.Forms;
 
 namespace MyBookReading.ViewModel
@@ -93,10 +92,6 @@ namespace MyBookReading.ViewModel
         public string MediumImageURL { get; set; }
         public string LargeImageURL { get; set; }
 
-		//Calil
-        public string CalilUrl { get; set; }   //個別の本のページ
-        public string ReserveUrl { get; set; } //図書館の本の予約ページ
-
         public ObservableCollection<CalilStatus> CalilStatusList { get; set; }
 
 		//Coomon
@@ -105,8 +100,6 @@ namespace MyBookReading.ViewModel
         public string Author { get; set; }
         public string Publisher { get; set; }
         public string PublishedDate { get; set; }
-		//public string Description { get{book.;} }
-		//public string Category { get{book.;} }
         public string ImageUrl { get; set; }
 		public string ReadingStatus { get; set; }   //既読 未読
 		public string Note { get; set; }            //自由メモ
@@ -180,17 +173,10 @@ namespace MyBookReading.ViewModel
             }
         }
 
-
-		/// <summary>
-		/// システムIDに紐付く図書館のキーの配列です。
-		/// < 図書館館キー, 貸出状況（「貸出中」、「貸出可」など）>
-		/// 蔵書がない場合は、図書館キー自体が配列に含まれない。
-		/// </summary>
-		/// <value>The libkeys.</value>
-		public Dictionary<string, string> Libkeys { set; get; }
+        //全部の登録図書館に対する検索中ステータス
 		public CheckStatus SearchStatus { set; get; }
-		public string StatusString { private set; get; }
-		public string SystemId { set; get; }
+
+        //全部の図書館を総合した蔵書ステータス
 		public string CalilStatus
 		{
 			get
@@ -226,9 +212,6 @@ namespace MyBookReading.ViewModel
             this.SmallImageURL = book.SmallImageURL;
             this.MediumImageURL = book.MediumImageURL;
             this.LargeImageURL = book.LargeImageURL;
-
-            this.CalilUrl = book.CalilUrl;
-            this.ReserveUrl = book.ReserveUrl;
 
             this.ISBN = book.ISBN;
             this.Title = book.Title;
@@ -266,18 +249,6 @@ namespace MyBookReading.ViewModel
 
 		public void Update(CalilCheckResult item, string systemName, int libraryTotalCount)
 		{
-			if (CalilUrl != null)
-			{
-			    this.CalilUrl = item.CalilUrl.ToString();
-			}
-			Libkeys = item.Libkeys;
-			if (item.ReserveUrl != null)
-			{
-				this.ReserveUrl = item.ReserveUrl.ToString();
-			}
-
-			SystemId = item.SystemId;
-
             //図書館ごとの蔵書状況をメンバに追加する
             CalilStatus status = new CalilStatus();
             status.SystemId = item.SystemId;
@@ -286,7 +257,7 @@ namespace MyBookReading.ViewModel
             {
                 status.ReserveUrl = item.ReserveUrl.ToString();
             }
-            status.Libkeys = Libkeys;
+            status.Libkeys = item.Libkeys;
             status.CheckStatus = ConvertStatus(item.Status);
             UpdateCalilStatusList(status);
 
@@ -300,8 +271,6 @@ namespace MyBookReading.ViewModel
                 SearchStatus = CheckStatus.Running;
             }
 
-			PropertyChanged(this, new PropertyChangedEventArgs("ReserveUrl"));
-			PropertyChanged(this, new PropertyChangedEventArgs("Libkeys"));
 			PropertyChanged(this, new PropertyChangedEventArgs("SearchStatus"));
 			PropertyChanged(this, new PropertyChangedEventArgs("CalilStatus"));
 			PropertyChanged(this, new PropertyChangedEventArgs("SearchBookStatus"));
@@ -330,9 +299,6 @@ namespace MyBookReading.ViewModel
                 MediumImageURL = this.MediumImageURL,
                 LargeImageURL = this.LargeImageURL,
 
-                //CalilUrl = this.CalilUrl,
-                //ReserveUrl = this.ReserveUrl,
-
                 ISBN = this.ISBN,
                 Title = this.Title,
                 Author = this.Author,
@@ -354,8 +320,6 @@ namespace MyBookReading.ViewModel
 		public event PropertyChangedEventHandler PropertyChanged = delegate { };
 
 		public ObservableCollection<SearchResultBook> BookResultList { get; set; }
-		public string Intro { get { return "Monkey Header"; } }
-		public string Summary { get { return " There were " + BookResultList.Count + " monkeys"; } }
 		public string Status { get; private set; }
 		public void UpdateStatus(string value)
 		{

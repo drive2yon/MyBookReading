@@ -7,21 +7,8 @@
         <StackLayout Orientation="Vertical">
         <ListView x:Name="listBook"
             ItemsSource="{Binding BookResultList}"
-            Header="{Binding Intro}"
-            Footer="{Binding Summary}"            
             VerticalOptions="FillAndExpand"
             RowHeight="100">
-            <ListView.HeaderTemplate >
-              <DataTemplate>
-                <StackLayout Orientation="Horizontal" 
-                    Padding="10,5,5,10"
-                    BackgroundColor="Yellow">
-                  <Label Text="~~"/>
-                  <Label Text="{Binding .}"/>
-                  <Label Text="~~"/>
-                </StackLayout>
-              </DataTemplate>
-            </ListView.HeaderTemplate>
             <ListView.ItemTemplate>
                 <DataTemplate>
                     <ViewCell>
