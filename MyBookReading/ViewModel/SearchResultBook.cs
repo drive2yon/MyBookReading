@@ -29,6 +29,13 @@ namespace MyBookReading.ViewModel
         public CheckStatus CheckStatus { get; set; }    //Calil検索状況
         public string ReserveUrl { get; set; }          //蔵書がある場合:予約URL 蔵書がない場合:null
         public Dictionary<string, string> Libkeys { set; get; } //System内の図書館個別の蔵書状況
+        public bool IsBookHolding()
+        {
+            if (ReserveUrl == null) { return false; }
+            if (Libkeys == null) { return false; }
+            if (Libkeys.Count() == 0) { return false; }
+            return true;
+        }
 
         public string BookHoldingStatus
         {
@@ -44,15 +51,13 @@ namespace MyBookReading.ViewModel
                 }
                 else //OK or Cached
                 {
-                    if (ReserveUrl == null ||
-                        Libkeys == null ||
-                        Libkeys.Count() == 0)
+                    if (IsBookHolding())
                     {
-                        return "図書館に蔵書なし";
+                        return "図書館に蔵書あり(図書館予約ページへ)";
                     }
                     else
                     {
-                        return "図書館に蔵書あり(図書館予約ページへ)";
+                        return "図書館に蔵書なし";
                     }
                 }
             }
@@ -134,7 +139,14 @@ namespace MyBookReading.ViewModel
         {
             get
             {
-                return (Libkeys != null && Libkeys.Count > 0);
+                foreach (var status in CalilStatusList)
+                {
+                    if (status.IsBookHolding())
+                    {
+                        return true;
+                    }
+                }
+                return true;
             }
         }
 
@@ -193,14 +205,14 @@ namespace MyBookReading.ViewModel
 				}
 				else //OK or Cached
 				{
-					if (Libkeys == null || Libkeys.Count == 0)
-					{
-						return "図書館に蔵書なし";
-					}
-					else
-					{
-						return "図書館に蔵書あり";
-					}
+                    foreach (var status in CalilStatusList)
+                    {
+                        if(status.IsBookHolding())
+                        {
+                            return "図書館に蔵書あり";
+                        }
+                    }
+                    return "図書館に蔵書なし";
 				}
 			}
 		}
@@ -252,7 +264,7 @@ namespace MyBookReading.ViewModel
             CalilStatusList.Add(status);
         }
 
-		public void Update(CalilCheckResult item, string systemName)
+		public void Update(CalilCheckResult item, string systemName, int libraryTotalCount)
 		{
 			if (CalilUrl != null)
 			{
@@ -263,7 +275,7 @@ namespace MyBookReading.ViewModel
 			{
 				this.ReserveUrl = item.ReserveUrl.ToString();
 			}
-			SearchStatus = ConvertStatus(item.Status);
+
 			SystemId = item.SystemId;
 
             //図書館ごとの蔵書状況をメンバに追加する
@@ -278,6 +290,15 @@ namespace MyBookReading.ViewModel
             status.CheckStatus = ConvertStatus(item.Status);
             UpdateCalilStatusList(status);
 
+
+            if (CalilStatusList.Count() == libraryTotalCount)
+            {
+                SearchStatus = CheckStatus.OK;
+            }
+            else
+            {
+                SearchStatus = CheckStatus.Running;
+            }
 
 			PropertyChanged(this, new PropertyChangedEventArgs("ReserveUrl"));
 			PropertyChanged(this, new PropertyChangedEventArgs("Libkeys"));
@@ -402,7 +423,7 @@ namespace MyBookReading.ViewModel
 						System.Diagnostics.Debug.WriteLine(item);
 						UpdateBook(item);
 					}
-					this.UpdateStatus("図書館の蔵書検索が完了しました");
+                    this.UpdateStatus("図書館の蔵書検索が完了しました");
 
 				}
 			}
@@ -423,12 +444,14 @@ namespace MyBookReading.ViewModel
 					bUpdate = true;
 
                     string systemName;
+                    int totalLibraryCount;
                     {
                         CheckTargetLibrarys lib = new CheckTargetLibrarys();
                         systemName = lib.GetSystemName(item.SystemId);
+                        totalLibraryCount = lib.Librarys.Count();
                     }
 
-                    book.Update(item, systemName);
+                    book.Update(item, systemName, totalLibraryCount);
 					if (item.Status == CheckState.Running)
 					{
 						this.UpdateStatus("「" + book.Title + "」の蔵書検索中");
