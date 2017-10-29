@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.ObjectModel;
+using System.Linq;
 using MyBookReading.Model;
 using MyBookReading.ViewModel;
 using MyBookReading.Web;
@@ -17,11 +18,7 @@ namespace MyBookReading
         Switch SwitchReading;
         Entry EntryNote;
         Book Book;
-        Label LabelLibraryStatus;
-
         Thickness Margin = new Thickness(0);
-
-
 
 		public BookDetailPage(BookShelf bookShelf, Book book, bool isRegist)
         {
@@ -44,7 +41,7 @@ namespace MyBookReading
             {
 				ToolbarItems.Add(new ToolbarItem
 				{
-					Text = "[本の保存]",
+					Text = "[本の登録]",
 					Command = new Command(() =>
 					{
 						string readingStatus = SwitchReading.IsToggled ? "既読" : "未読";
@@ -126,11 +123,7 @@ namespace MyBookReading
 
             var amazonButton = new Button
             {
-                Text = "Amazon",
-            };
-            var CalilButton = new Button
-            {
-                Text = "Calil",
+                Text = "Amazon商品ページ",
             };
 
             amazonButton.Clicked += (sender, e) =>
@@ -138,13 +131,6 @@ namespace MyBookReading
                 if (Book.AmazonDetailPageURL != null)
                 {
                     DependencyService.Get<IWebBrowserService>().Open(new Uri(Book.AmazonDetailPageURL));
-                }
-            };
-            CalilButton.Clicked += (sender, e) =>
-            {
-                if (Book.CalilUrl != null)
-                {
-                    DependencyService.Get<IWebBrowserService>().Open(new Uri(Book.CalilUrl));
                 }
             };
 
@@ -177,9 +163,8 @@ namespace MyBookReading
             };
             StackLayout bookDetailContent = new StackLayout
             {
-                Spacing = 10,
+                VerticalOptions = LayoutOptions.FillAndExpand,
                 Children =
-
                     {
                         new Label
                         {
@@ -187,7 +172,6 @@ namespace MyBookReading
                             FontSize = Device.GetNamedSize(NamedSize.Large, typeof(Label)),
                             Margin = this.Margin,
                         },
-
                         new Label
                         {
                             Text = "書籍詳細",
@@ -214,33 +198,25 @@ namespace MyBookReading
 
                                 new StackLayout
                                 {
-                                    Spacing = 10,
                                     Children =
                                     {
                                         new Label
                                         {
-                                            Text = "著者",
+                                            Text = "著者 : " + Book.Author,
                                         },
                                         new Label
                                         {
-                                            Text = Book.Author,
+                                            Text = "出版社 : " + Book.Publisher,
                                         },
                                         new Label
                                         {
-                                            Text = "出版社",
+                                            Text = "発売日 : " + Book.PublishedDate,
                                         },
                                         new Label
                                         {
-                                            Text = Book.Publisher,
+                                            Text = "本の詳細ページ : ",
                                         },
-                                        new Label
-                                        {
-                                            Text = "発売日",
-                                        },
-                                        new Label
-                                        {
-                                            Text = Book.PublishedDate,
-                                        },
+                                        amazonButton,
                                     },
                                 },
                             },
@@ -256,77 +232,32 @@ namespace MyBookReading
                     Margin = this.Margin,
                 });
 
-            SearchResultBook resultBook = new SearchResultBook(this.Book);
-            foreach(var bookResult in CalilSearch.BookResultList )
+            var cell = new DataTemplate(typeof(TextCell));
+            cell.SetBinding(TextCell.TextProperty, "SystemName");
+            cell.SetBinding(TextCell.DetailProperty, "BookHoldingStatus");
+            ListView bookSearchlistView = new ListView
             {
-                resultBook = bookResult;
-                break;
-            }
-			//登録図書館は１件前提
-			foreach( var library in Librarys.Librarys)
+                ItemsSource = CalilSearch.GetFirstResultBook().CalilStatusList,
+                ItemTemplate = cell,
+                HeightRequest = (Librarys.Librarys.Count() )* (Cell.DefaultCellHeight+10),
+            };
+
+            bookSearchlistView.ItemSelected += (sender, e) =>
             {
-				Label LabelLibrary = new Label
-				{
-					Text = library.systemname,
-					FontSize = Device.GetNamedSize(NamedSize.Medium, typeof(Label)),
-					Margin = this.Margin,
-				};
-
-                LabelLibraryStatus = new Label
+                if (e.SelectedItem == null)
                 {
-					FontSize = Device.GetNamedSize(NamedSize.Medium, typeof(Label)),
-					Margin = this.Margin,
-                    HorizontalOptions = LayoutOptions.EndAndExpand,
-                    BindingContext = resultBook,
-				};
-                LabelLibraryStatus.SetBinding(Label.TextProperty, "CalilStatus");
-
-				StackLayout libraryStatus = new StackLayout
+                    return;
+                }
+                ((ListView)sender).SelectedItem = null;
+                var item = e.SelectedItem as CalilStatus;
+                if (item != null && item.ReserveUrl != null)
                 {
-                    Orientation = StackOrientation.Horizontal,
-                    Children =
-                    {
-                        LabelLibrary,
-                        LabelLibraryStatus,
-                    }
-                };
+                    DependencyService.Get<IWebBrowserService>().Open(new Uri(item.ReserveUrl));
+                }
+            };
 
-				var tgr = new TapGestureRecognizer();
-				tgr.Tapped += (sender, e) => 
-                {
-					foreach(var bookResult in CalilSearch.BookResultList )
-					{
-					    if(bookResult.ReserveUrl != null)
-					    {
-							DependencyService.Get<IWebBrowserService>().Open(new Uri(bookResult.ReserveUrl));
-						}
-                        break;
-					}
+            bookDetailContent.Children.Add(bookSearchlistView);
 
-				};
-				libraryStatus.GestureRecognizers.Add(tgr);
-
-				bookDetailContent.Children.Add(libraryStatus);
-                break;
-			}
-
-            bookDetailContent.Children.Add(
-                new Label
-                {
-                    Text = "詳細ページ",
-					Style = labelStyleDetailContent,
-					Margin = this.Margin,
-				});
-            bookDetailContent.Children.Add(
-                new StackLayout
-                {
-                    Orientation = StackOrientation.Horizontal,
-                    Children =
-                    {
-                        amazonButton,
-                        CalilButton,
-                    },
-                });
 			bookDetailContent.Children.Add(
 				new Label
 				{

@@ -22,6 +22,43 @@ namespace MyBookReading.ViewModel
 		Error
 	}
 
+    public class CalilStatus
+    {
+        public string SystemId { get; set; }            //図書館Id
+        public string SystemName { get; set; }            //図書館Name
+        public CheckStatus CheckStatus { get; set; }    //Calil検索状況
+        public string ReserveUrl { get; set; }          //蔵書がある場合:予約URL 蔵書がない場合:null
+        public Dictionary<string, string> Libkeys { set; get; } //System内の図書館個別の蔵書状況
+
+        public string BookHoldingStatus
+        {
+            get
+            {
+                if (CheckStatus == CheckStatus.Running)
+                {
+                    return "図書館の蔵書検索中";
+                }
+                else if (CheckStatus == CheckStatus.Error)
+                {
+                    return "図書館の蔵書検索失敗";
+                }
+                else //OK or Cached
+                {
+                    if (ReserveUrl == null ||
+                        Libkeys == null ||
+                        Libkeys.Count() == 0)
+                    {
+                        return "図書館に蔵書なし";
+                    }
+                    else
+                    {
+                        return "図書館に蔵書あり(図書館予約ページへ)";
+                    }
+                }
+            }
+        }
+    }
+
 	public class SearchResultBook : INotifyPropertyChanged
 	{
 		public event PropertyChangedEventHandler PropertyChanged = delegate { };
@@ -31,6 +68,7 @@ namespace MyBookReading.ViewModel
 			//本棚に登録済みか判定する
 			BookShelf bookVM = new BookShelf();
 			Book registBook = bookVM.GetRegistBook(book);
+            CalilStatusList = new ObservableCollection<ViewModel.CalilStatus>();
 			if (registBook != null)
 			{
 				this.InitBook(registBook);
@@ -53,6 +91,8 @@ namespace MyBookReading.ViewModel
 		//Calil
         public string CalilUrl { get; set; }   //個別の本のページ
         public string ReserveUrl { get; set; } //図書館の本の予約ページ
+
+        public ObservableCollection<CalilStatus> CalilStatusList { get; set; }
 
 		//Coomon
         public string ISBN { get; set; }
@@ -190,7 +230,29 @@ namespace MyBookReading.ViewModel
 
     	}
 
-		public void Update(CalilCheckResult item)
+        private void UpdateCalilStatusList(CalilStatus status)
+        {
+            //ステータスが確定してからリスト表示する
+            if(status.CheckStatus == CheckStatus.Running ||
+               status.CheckStatus == CheckStatus.None )
+            {
+                return;
+            }
+
+            //リストに登録済みなら除外
+            foreach(var target in CalilStatusList)
+            {
+                if(target.SystemId == status.SystemId)
+                {
+                    return;
+                }
+            }
+
+            //未登録ならリスト追加
+            CalilStatusList.Add(status);
+        }
+
+		public void Update(CalilCheckResult item, string systemName)
 		{
 			if (CalilUrl != null)
 			{
@@ -203,6 +265,20 @@ namespace MyBookReading.ViewModel
 			}
 			SearchStatus = ConvertStatus(item.Status);
 			SystemId = item.SystemId;
+
+            //図書館ごとの蔵書状況をメンバに追加する
+            CalilStatus status = new CalilStatus();
+            status.SystemId = item.SystemId;
+            status.SystemName = systemName;
+            if( item.ReserveUrl != null)
+            {
+                status.ReserveUrl = item.ReserveUrl.ToString();
+            }
+            status.Libkeys = Libkeys;
+            status.CheckStatus = ConvertStatus(item.Status);
+            UpdateCalilStatusList(status);
+
+
 			PropertyChanged(this, new PropertyChangedEventArgs("ReserveUrl"));
 			PropertyChanged(this, new PropertyChangedEventArgs("Libkeys"));
 			PropertyChanged(this, new PropertyChangedEventArgs("SearchStatus"));
@@ -252,6 +328,8 @@ namespace MyBookReading.ViewModel
 
 	class SearchResultVM : INotifyPropertyChanged
 	{
+        CheckTargetLibrarys Librarys = new CheckTargetLibrarys();
+
 		public event PropertyChangedEventHandler PropertyChanged = delegate { };
 
 		public ObservableCollection<SearchResultBook> BookResultList { get; set; }
@@ -264,38 +342,11 @@ namespace MyBookReading.ViewModel
 			PropertyChanged(this, new PropertyChangedEventArgs("Status"));
 		}
 
-		//Calil検索用に設定済み図書館のIDを文字列で取得する
-		private string GetSystemID()
-		{
-			StringBuilder systemidList = new StringBuilder();
-			using (var realm = Realm.GetInstance())
-			{
-				var librarys = realm.All<CheckTargetLibrary>();
-				if (librarys == null || librarys.Count() == 0)
-				{
-					return null;
-				}
-				foreach (var library in librarys)
-				{
-					if (systemidList.Length == 0)
-					{
-						systemidList.Append(library.systemid);
-					}
-					else
-					{
-						systemidList.Append("," + library.systemid);
-					}
-				}
-			}
-			return systemidList.ToString();
-		}
-
-
 		//蔵書検索
 		public void CheckBooks(IEnumerable<Book> books)
 		{
 			CalilCredentials CalilKey = CalilCredentials.LoadCredentialsFile();
-			string systemid = GetSystemID();
+			string systemid = Librarys.GetSystemIDList();
 			if (systemid == null) //図書館が未設定の場合は、蔵書検索を行わない
 			{
 				this.UpdateStatus("表示完了");
@@ -370,7 +421,14 @@ namespace MyBookReading.ViewModel
 				if (book.ISBN == item.Isbn)
 				{
 					bUpdate = true;
-					book.Update(item);
+
+                    string systemName;
+                    {
+                        CheckTargetLibrarys lib = new CheckTargetLibrarys();
+                        systemName = lib.GetSystemName(item.SystemId);
+                    }
+
+                    book.Update(item, systemName);
 					if (item.Status == CheckState.Running)
 					{
 						this.UpdateStatus("「" + book.Title + "」の蔵書検索中");
@@ -381,6 +439,15 @@ namespace MyBookReading.ViewModel
 			}
 			return bUpdate;
 		}
+
+        public SearchResultBook GetFirstResultBook()
+        {
+            if(BookResultList == null)
+            {
+                return null;
+            }
+            return BookResultList.First();
+        }
 	}
 
 }

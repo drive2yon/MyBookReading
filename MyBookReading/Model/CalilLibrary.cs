@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using Realms;
 using Xamarin.Forms;
 
@@ -24,15 +25,10 @@ namespace MyBookReading.Model
 
 		public IEnumerable<CheckTargetLibrary> Librarys { get; }
 
-        //not use
-		//public Command<CheckTargetLibrary> DelLibraryCommand { get; }
-
 		public CheckTargetLibrarys()
 		{
 			_realm = Realm.GetInstance();
 			Librarys = _realm.All<CheckTargetLibrary>();
-
-            //DelLibraryCommand = new Command<CheckTargetLibrary>(DelLibrary); 
 		}
 
 		public void DelLibrary(CheckTargetLibrary library)
@@ -42,6 +38,42 @@ namespace MyBookReading.Model
 				_realm.Write(() => _realm.Remove(library));
 			}
 		}
+
+        //Calil検索用に設定済み図書館のIDを文字列で取得する
+        public string GetSystemIDList()
+        {
+            StringBuilder systemidList = new StringBuilder();
+            foreach (CheckTargetLibrary library in Librarys)
+            {
+                if (systemidList.Length == 0)
+                {
+                    systemidList.Append(library.systemid);
+                }
+                else
+                {
+                    systemidList.Append("," + library.systemid);
+                }
+            }
+            return systemidList.ToString();
+        }
+
+
+        /// <summary>
+        /// Gets the name of the library
+        /// </summary>
+        /// <returns>The system name.</returns>
+        /// <param name="systemid">Systemid.</param>
+        public string GetSystemName(string systemid)
+        {
+            foreach( CheckTargetLibrary library in Librarys)
+            {
+                if(systemid == library.systemid)
+                {
+                    return library.systemname;
+                }
+            }
+            return null;
+        }
 	}
 
 
