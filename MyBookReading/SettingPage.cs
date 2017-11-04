@@ -2,13 +2,22 @@
 using System.Collections.Generic;
 using System.Linq;
 using MyBookReading.Model;
+using Newtonsoft.Json;
 using Realms;
 using Xamarin.Forms;
 
 namespace MyBookReading
 {
-    public class SettingPage : ContentPage
+    public partial class SettingPage : ContentPage
     {
+        public interface IBookShelf
+        {
+            string SaveFile(string filename, string dataText);
+            string GetFilePath(string filename);
+            string LoadFile(string filepath);
+            bool IsExistFile(string filepath);
+        }
+
 		class LibraryCell : ViewCell
 		{
             public LibraryCell()
@@ -53,6 +62,7 @@ namespace MyBookReading
 			}
 		}
 
+        const string BOOKSHELF_FILENAME = "bookshelf.txt";
         private ListView libraryListView;
         public SettingPage()
         {
@@ -96,18 +106,46 @@ namespace MyBookReading
 
             var exportButton = new Button
             {
-                Text = "データを取り出す",
+                Text = "本だなデータファイルを保存する",
             };
-            registLibraryButton.Clicked += (sender, e) =>
+            exportButton.Clicked += async (sender, e) =>
             {
+                BookShelf bookShelf = new BookShelf();
+                string bookJsonText = JsonConvert.SerializeObject(bookShelf.Books);
+                var obj = DependencyService.Get<IBookShelf>();
+                string filepath = obj.SaveFile(BOOKSHELF_FILENAME, bookJsonText);
+                await DisplayAlert("本だなデータを保存しました", filepath, "OK");
             };
 
             var importtButton = new Button
             {
-                Text = "データを取り込む",
+                Text = "本だなデータファイルを読み込む",
             };
-            registLibraryButton.Clicked += (sender, e) =>
+            importtButton.Clicked += async (sender, e) =>
             {
+                bool bLoad = await DisplayAlert("本だなデータの読み込み開始", "アプリに登録済みの本だなデータは全消去しますがよろしいですか？", "OK","キャンセル");
+                if (bLoad == false)
+                {
+                    return;
+                }
+                var obj = DependencyService.Get<IBookShelf>();
+                string filepath = obj.GetFilePath(BOOKSHELF_FILENAME);
+                await DisplayAlert("本だなデータファイルを以下の場所に配置したらOKしてください", filepath, "OK");
+
+                bool isExist = obj.IsExistFile(filepath);
+                if (isExist == false)
+                {
+                    await DisplayAlert("読み込み失敗", "本だなデータファイルが見つかりませんでしたので終了します", "OK");
+                    return;
+                }
+
+                string bookJsonText = obj.LoadFile(filepath);
+
+                IEnumerable<Book> books = JsonConvert.DeserializeObject<IEnumerable<Book>>(bookJsonText);
+                BookShelf bookShelf = new BookShelf();
+                bookShelf.UpdateAll(books);
+
+                await DisplayAlert("読み込み完了", "本だなデータの読み込みに成功しました", "OK");
             };
 
 
@@ -124,7 +162,7 @@ namespace MyBookReading
                     libraryListView,
                     new Label
                     {
-                        Text = "データの移行/取込み",
+                        Text = "本だなデータの移行/取込み",
                         Style = labelStyleDetailContent,
                     },
                     exportButton,

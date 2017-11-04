@@ -70,6 +70,19 @@ namespace MyBookReading
 				trans.Commit();
 			}
         }
+
+        public void UpdateAll(IEnumerable<Book> books)
+        {
+            using (var trans = _realm.BeginWrite())
+            {
+                _realm.RemoveAll<Book>();
+                foreach (Book book in books)
+                {
+                    _realm.Add(book);
+                }
+                trans.Commit();
+            }
+        }
     }
 
     public class Book : RealmObject
