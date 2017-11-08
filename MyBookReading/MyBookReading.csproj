@@ -89,6 +89,7 @@
     <Compile Include="Web\IWebBrowserService.cs" />
     <Compile Include="Model\Book.cs" />
     <Compile Include="ViewModel\SearchResultBook.cs" />
+    <Compile Include="ViewModel\LibraryGroup.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System" />

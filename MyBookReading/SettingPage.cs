@@ -33,11 +33,8 @@ namespace MyBookReading
                 var tgr = new TapGestureRecognizer();
                 tgr.Tapped += (sender, e) =>
                 {
-					//登録済み図書館
-					using (var realm = Realm.GetInstance())
-					{
-                        realm.Write(() => realm.Remove((CheckTargetLibrary)BindingContext));
-					}
+                    CheckTargetLibrarys targetLibrarys = new CheckTargetLibrarys();
+                    targetLibrarys.DelLibrary((CheckTargetLibrary)BindingContext);
                 };
 				deleteLabel.GestureRecognizers.Add(tgr);
 

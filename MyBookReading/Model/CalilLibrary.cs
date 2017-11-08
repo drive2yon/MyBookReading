@@ -31,6 +31,20 @@ namespace MyBookReading.Model
 			Librarys = _realm.All<CheckTargetLibrary>();
 		}
 
+        public void AddLibrary(string systemId, string systemName)
+        {
+            _realm.Write(() =>
+            {
+                CheckTargetLibrary target = new CheckTargetLibrary()
+                {
+                    systemid = systemId,
+                    systemname = systemName,
+                };
+                _realm.Add(target);
+            });
+
+        }
+
 		public void DelLibrary(CheckTargetLibrary library)
 		{
 			if (library != null)
@@ -38,6 +52,20 @@ namespace MyBookReading.Model
 				_realm.Write(() => _realm.Remove(library));
 			}
 		}
+
+        public void DelLibrary(string systemname)
+        {
+            _realm.Write(() =>
+            {
+                var librarys = Librarys.Where(x => x.systemname == systemname); ;
+                if (librarys != null && librarys.Count() > 0)
+                {
+                    var library = librarys.First();
+                    _realm.Remove(library);
+                }
+            });
+        }
+
 
         //Calil検索用に設定済み図書館のIDを文字列で取得する
         public string GetSystemIDList()
@@ -73,6 +101,17 @@ namespace MyBookReading.Model
                 }
             }
             return null;
+        }
+
+        /// <summary>
+        /// 引数で指定した図書館がDBに登録済みか判定して返す
+        /// </summary>
+        /// <returns><c>true</c> 登録済み <c>false</c> 未登録</returns>
+        /// <param name="systemname">systemname(Calilが返却する図書館名).</param>
+        public bool IsRegist(string systemname)
+        {
+            var librarys = Librarys.Where(x => x.systemname == systemname);
+            return librarys.Count() > 0;
         }
 	}
 
