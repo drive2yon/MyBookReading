@@ -16,7 +16,8 @@ namespace MyBookReading
 
 		public BookShelf()
 		{
-			_realm = Realm.GetInstance();
+            var config = new RealmConfiguration() { SchemaVersion = 1 };
+			_realm = Realm.GetInstance(config);
 			Books = _realm.All<Book>();
 		}
 
@@ -104,8 +105,8 @@ namespace MyBookReading
         public string LargeImageURL { get; set; }
 
 		//Calil
-		public string CalilUrl { set; get; }   //個別の本のページ
-		public string ReserveUrl { set; get; } //図書館の本の予約ページ
+		//public string CalilUrl { set; get; }   //個別の本のページ
+		//public string ReserveUrl { set; get; } //図書館の本の予約ページ
 
 		//Coomon
 		public string ISBN { get; set; }
