@@ -1,9 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using MyBookReading.Model;
 using Newtonsoft.Json;
-using Realms;
 using Xamarin.Forms;
 
 namespace MyBookReading

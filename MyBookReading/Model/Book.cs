@@ -32,17 +32,26 @@ namespace MyBookReading
                 return books.First();
             }
 		}
+        public bool IsRegistBook(Book book)
+        {
+            var books = _realm.All<Book>().Where(b => b.ISBN == book.ISBN);
+            return books.Count() != 0;
+        }
+        public bool IsRegistBook(string ISBN)
+        {
+            var books = _realm.All<Book>().Where(b => b.ISBN == ISBN);
+            return books.Count() != 0;
+        }
 
 		/// <summary>
 		/// 本を本棚に登録する。登録済みの場合は上書き更新する。
 		/// </summary>
 		/// <param name="book">Book.</param>
-		/// <param name="isRegist">If set to <c>true</c> is regist.</param>
 		/// <param name="ReadingStatus">Reading status.</param>
 		/// <param name="Note">Note.</param>
-		public void SaveBook(Book book, bool isRegist, string ReadingStatus, string Note)
+		public void SaveBook(Book book, string ReadingStatus, string Note)
 		{
-			if (isRegist)
+			if (IsRegistBook(book))
 			{
 				//登録済みの場合はトランザクションの中でプロパティを更新する
 				_realm.Write(() =>

@@ -6,8 +6,6 @@ using System.Collections.Generic;
 using System.Net;
 using System.IO;
 using System.Reflection;
-using MyBookReading.Model;
-using Realms;
 
 namespace MyBookReading
 {

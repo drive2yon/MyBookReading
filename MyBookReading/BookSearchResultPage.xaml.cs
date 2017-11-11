@@ -1,11 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using System.Linq;
-using System.Text;
-using Karamem0.LinqToCalil;
-using MyBookReading.Model;
-using Realms;
 using Xamarin.Forms;
 using System.Threading.Tasks;
 using MyBookReading.ViewModel;
@@ -84,6 +78,21 @@ namespace MyBookReading
 				SearchResultVM.CheckBooks(books);
 			}
             return ret;
+        }
+
+        protected override void OnAppearing()
+        {
+            base.OnAppearing();
+
+            //トリッキーだが、ここで登録済み判定の更新を行う
+            BookShelf bookShelf = new BookShelf();
+            foreach(var book in ResultBookList)
+            {
+                if(bookShelf.IsRegistBook(book.ISBN))
+                {
+                    book.IsRegistBookShelf = true;
+                }
+            }
         }
     }
 }

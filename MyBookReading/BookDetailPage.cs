@@ -33,7 +33,7 @@ namespace MyBookReading
 					Command = new Command(() =>
 					{
 						string readingStatus = SwitchReading.IsToggled ? "既読" : "未読";
-						bookShelf.SaveBook(book, isRegist, readingStatus, EntryNote.Text);
+						bookShelf.SaveBook(book, readingStatus, EntryNote.Text);
 					})
 				});
             }
@@ -45,7 +45,7 @@ namespace MyBookReading
 					Command = new Command(() =>
 					{
 						string readingStatus = SwitchReading.IsToggled ? "既読" : "未読";
-						bookShelf.SaveBook(book, isRegist, readingStatus, EntryNote.Text);
+						bookShelf.SaveBook(book, readingStatus, EntryNote.Text);
 					})
 				});
 				ToolbarItems.Add(new ToolbarItem

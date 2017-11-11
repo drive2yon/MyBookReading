@@ -4,7 +4,6 @@ using System.ComponentModel;
 using System.Text;
 using MyBookReading.Model;
 using Newtonsoft.Json;
-using Realms;
 using System.Linq;
 
 namespace MyBookReading.ViewModel

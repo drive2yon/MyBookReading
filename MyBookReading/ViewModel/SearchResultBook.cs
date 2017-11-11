@@ -105,8 +105,26 @@ namespace MyBookReading.ViewModel
 		public string Note { get; set; }            //自由メモ
 		public string RatingStar { get; set; }      //レート星
 
-		//for SearchResult
-		public bool IsRegistBookShelf { get; set; }
+        //for SearchResult
+        private bool _IsRegistBookShelf; 
+		public bool IsRegistBookShelf
+        {
+            get
+            {
+                return this._IsRegistBookShelf;
+            }
+            set
+            {
+                if (this._IsRegistBookShelf == value)
+                {
+                    return;
+                }
+                this._IsRegistBookShelf = value;
+                PropertyChanged(this, new PropertyChangedEventArgs("IsRegistBookShelf"));
+                PropertyChanged(this, new PropertyChangedEventArgs("IsRegistBookShelf"));
+            }
+        }
+
         public string SearchBookStatus 
         {
             get

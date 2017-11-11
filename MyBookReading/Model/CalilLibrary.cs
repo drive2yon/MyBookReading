@@ -1,9 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Realms;
-using Xamarin.Forms;
 
 namespace MyBookReading.Model
 {
@@ -121,6 +119,7 @@ namespace MyBookReading.Model
     /// libidがユニークかつ固定値である前提で設計する。そのためlibidが変わると破綻するので注意
 	/// </summary>
 	public class CalilLibrary : RealmObject
+
 	{
 		public string category { get; set; }    //SMALL(図書室・公民館) MEDIUM(図書館(地域)) LARGE(図書館(広域)) UNIV(大学) SPECIAL(専門) BM(移動・BM)
 		public string city { get; set; }        //市区町村
