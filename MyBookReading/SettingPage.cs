@@ -155,13 +155,15 @@ namespace MyBookReading
                     },
                     registLibraryButton,
                     libraryListView,
-                    new Label
-                    {
-                        Text = "本だなデータの移行/取込み",
-                        Style = labelStyleDetailContent,
-                    },
-                    exportButton,
-                    importtButton,
+
+
+                    //new Label
+                    //{
+                    //    Text = "本だなデータの移行/取込み",
+                    //    Style = labelStyleDetailContent,
+                    //},
+                    //exportButton,
+                    //importtButton,
                 },
 			};
 
