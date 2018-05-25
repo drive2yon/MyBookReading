@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using MyBookReading.Model;
 using Newtonsoft.Json;
@@ -59,6 +60,10 @@ namespace MyBookReading
 
         const string BOOKSHELF_FILENAME = "bookshelf.txt";
         private ListView libraryListView;
+        private int ExportFuncTapCount = 0;
+        Label exportLabel;
+        Button exportButton;
+        Button importButton;
         public SettingPage()
         {
             BindingContext = new CheckTargetLibrarys();
@@ -99,9 +104,73 @@ namespace MyBookReading
                 ((ListView)sender).SelectedItem = null;
             };
 
-            var exportButton = new Button
+            CrateExportView(labelStyleDetailContent);
+
+
+
+            var libraryCommentLabel = new Label
+            {
+                Text = "図書館の設定   (最大 5 件まで登録可能)",
+                Style = labelStyleDetailContent,
+            };
+
+            var tgr = new TapGestureRecognizer();
+            tgr.Tapped += (sender, e) => OnLabelClicked(sender, e);
+            libraryCommentLabel.GestureRecognizers.Add(tgr);
+
+			var layout = new StackLayout
+			{
+				Children = 
+                {
+                    libraryCommentLabel,    
+                    registLibraryButton,
+                    libraryListView,
+
+                    exportLabel,
+                    exportButton,
+                    importButton,
+                },
+			};
+
+            this.Content = layout;
+        }
+
+        void OnLabelRegistLibralyClicked()
+        {
+			Navigation.PushAsync(new SelectPrefecturePage());
+		}
+
+        protected override void OnAppearing()
+        {
+            base.OnAppearing();
+            libraryListView.HeightRequest = (((CheckTargetLibrarys)BindingContext).Librarys.Count()) * (Cell.DefaultCellHeight + 10);
+        }
+
+        private void OnLabelClicked(object sender, EventArgs e)
+        {
+            ExportFuncTapCount++;
+            if(ExportFuncTapCount == 20)
+            {
+                exportLabel.IsVisible = true;
+                exportButton.IsVisible = true;
+                importButton.IsVisible = true;
+            }
+        }
+
+        private void CrateExportView( Style labelStyleDetailContent)
+        {
+
+            exportLabel =  new Label
+            {
+                Text = "本だなデータの移行/取込み",
+                Style = labelStyleDetailContent,
+                IsVisible = false
+            };
+
+            exportButton = new Button
             {
                 Text = "本だなデータファイルを保存する",
+                IsVisible = false
             };
             exportButton.Clicked += async (sender, e) =>
             {
@@ -112,13 +181,14 @@ namespace MyBookReading
                 await DisplayAlert("本だなデータを保存しました", filepath, "OK");
             };
 
-            var importtButton = new Button
+            importButton = new Button
             {
                 Text = "本だなデータファイルを読み込む",
+                IsVisible = false
             };
-            importtButton.Clicked += async (sender, e) =>
+            importButton.Clicked += async (sender, e) =>
             {
-                bool bLoad = await DisplayAlert("本だなデータの読み込み開始", "アプリに登録済みの本だなデータは全消去しますがよろしいですか？", "OK","キャンセル");
+                bool bLoad = await DisplayAlert("本だなデータの読み込み開始", "アプリに登録済みの本だなデータは全消去しますがよろしいですか？", "OK", "キャンセル");
                 if (bLoad == false)
                 {
                     return;
@@ -143,42 +213,6 @@ namespace MyBookReading
                 await DisplayAlert("読み込み完了", "本だなデータの読み込みに成功しました", "OK");
             };
 
-
-			var layout = new StackLayout
-			{
-				Children = 
-                {
-                    new Label
-                    {
-                        Text = "図書館の設定   (最大 5 件まで登録可能)",
-                        Style = labelStyleDetailContent,
-                    },
-                    registLibraryButton,
-                    libraryListView,
-
-
-                    //new Label
-                    //{
-                    //    Text = "本だなデータの移行/取込み",
-                    //    Style = labelStyleDetailContent,
-                    //},
-                    //exportButton,
-                    //importtButton,
-                },
-			};
-
-            this.Content = layout;
-        }
-
-        void OnLabelRegistLibralyClicked()
-        {
-			Navigation.PushAsync(new SelectPrefecturePage());
-		}
-
-        protected override void OnAppearing()
-        {
-            base.OnAppearing();
-            libraryListView.HeightRequest = (((CheckTargetLibrarys)BindingContext).Librarys.Count()) * (Cell.DefaultCellHeight + 10);
         }
     }
 }
