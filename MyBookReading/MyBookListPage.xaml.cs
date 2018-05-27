@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Plugin.GoogleAnalytics;
 using Xamarin.Forms;
 
 namespace MyBookReading
@@ -43,6 +44,9 @@ namespace MyBookReading
 					await Navigation.PushAsync(new BookDetailPage(bookShelf, item, isRegist:true));
 				}
 			};
+
+            //GoogleAnalytics
+            //GoogleAnalytics.Current.Tracker.SendEvent("MyBookListPage - InitList", "");
 		}
    }
 }

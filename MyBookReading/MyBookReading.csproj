@@ -110,20 +110,20 @@
     <Reference Include="Newtonsoft.Json">
       <HintPath>..\packages\Newtonsoft.Json.11.0.2\lib\portable-net45+win8+wp8+wpa81\Newtonsoft.Json.dll</HintPath>
     </Reference>
-    <Reference Include="Realm.DataBinding">
-      <HintPath>..\packages\Realm.DataBinding.1.2.0\lib\netstandard1.0\Realm.DataBinding.dll</HintPath>
-    </Reference>
-    <Reference Include="Realm">
-      <HintPath>..\packages\Realm.Database.3.0.0\lib\portable-net45+sl5+wp8+wpa81+win8+monoandroid+Xamarin.iOS10+monotouch+Xamarin.Mac\Realm.dll</HintPath>
-    </Reference>
-    <Reference Include="Realm.Sync">
-      <HintPath>..\packages\Realm.3.0.0\lib\portable-net45+sl5+wp8+wpa81+win8+monoandroid+Xamarin.iOS10+monotouch+Xamarin.Mac\Realm.Sync.dll</HintPath>
-    </Reference>
     <Reference Include="Plugin.GoogleAnalytics.Abstractions">
       <HintPath>..\packages\ksemenenko.GoogleAnalytics.1.0.3.2\lib\portable-net45+wp80+win8+wpa81\Plugin.GoogleAnalytics.Abstractions.dll</HintPath>
     </Reference>
     <Reference Include="Plugin.GoogleAnalytics">
       <HintPath>..\packages\ksemenenko.GoogleAnalytics.1.0.3.2\lib\portable-net45+wp80+win8+wpa81\Plugin.GoogleAnalytics.dll</HintPath>
+    </Reference>
+    <Reference Include="Realm.Sync">
+      <HintPath>..\packages\Realm.1.5.0\lib\portable-net45+sl5+wp8+wpa81+win8+monoandroid+Xamarin.iOS10+monotouch+Xamarin.Mac\Realm.Sync.dll</HintPath>
+    </Reference>
+    <Reference Include="Realm">
+      <HintPath>..\packages\Realm.Database.1.5.0\lib\portable-net45+sl5+wp8+wpa81+win8+monoandroid+Xamarin.iOS10+monotouch+Xamarin.Mac\Realm.dll</HintPath>
+    </Reference>
+    <Reference Include="Realm.DataBinding">
+      <HintPath>..\packages\Realm.DataBinding.1.1.0\lib\netstandard1.0\Realm.DataBinding.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -137,7 +137,7 @@
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <Import Project="..\packages\Xamarin.Forms.3.0.0.482510\build\netstandard1.0\Xamarin.Forms.targets" Condition="Exists('..\packages\Xamarin.Forms.3.0.0.482510\build\netstandard1.0\Xamarin.Forms.targets')" />
-  <Import Project="..\packages\Realm.Database.3.0.0\build\Realm.Database.targets" Condition="Exists('..\packages\Realm.Database.3.0.0\build\Realm.Database.targets')" />
-  <Import Project="..\packages\Realm.3.0.0\build\Realm.targets" Condition="Exists('..\packages\Realm.3.0.0\build\Realm.targets')" />
   <Import Project="..\packages\Fody.2.5.0\build\Fody.targets" Condition="Exists('..\packages\Fody.2.5.0\build\Fody.targets')" />
+  <Import Project="..\packages\Realm.1.5.0\build\Realm.targets" Condition="Exists('..\packages\Realm.1.5.0\build\Realm.targets')" />
+  <Import Project="..\packages\Realm.Database.1.5.0\build\Realm.Database.targets" Condition="Exists('..\packages\Realm.Database.1.5.0\build\Realm.Database.targets')" />
 </Project>
