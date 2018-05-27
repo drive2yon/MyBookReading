@@ -5,6 +5,7 @@ using System.Reflection;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Xamarin.Forms;
+//using Plugin.GoogleAnalytics;
 
 namespace MyBookReading
 {
@@ -19,31 +20,40 @@ namespace MyBookReading
             amazonKey = LoadCredentialsFile();
             InitializeComponent();
 			this.Appearing += (object sender, System.EventArgs e) => this.entryTitle.Focus();
+
+
+            //スクリーンのサイズを取得する
+            var screenWidth = Application.Current.MainPage.Width;
+            var screenHeight = Application.Current.MainPage.Height;
+
+            ResizeView(screenWidth, screenHeight);
+
         }
 
-		protected override void OnSizeAllocated(double width, double height)
-		{
-			base.OnSizeAllocated(width, height);
+        private void ResizeView(double width, double height)
+        {
+            entryScrollView.WidthRequest = width;
 
-			entryScrollView.WidthRequest = relativeLayout.Width;
+                     relativeLayout.Children.Add(cvLayer,
+              Constraint.RelativeToParent(parent => 0), // xConstraint
+              Constraint.RelativeToParent(parent => 0), // yConstraint
+                         Constraint.RelativeToParent(parent => parent.Width), // widthConstraint
+              Constraint.RelativeToParent(parent => parent.Height) // heightConstraint
+            );
 
-            relativeLayout.Children.Add(cvLayer,
-				Constraint.RelativeToParent(parent => 0), // xConstraint
-				Constraint.RelativeToParent(parent => 0), // yConstraint
-                Constraint.RelativeToParent(parent => parent.Width), // widthConstraint
-				Constraint.RelativeToParent(parent => parent.Height) // heightConstraint
-			);
-
-			relativeLayout.Children.Add(frLayer,
-				Constraint.RelativeToParent(parent => (itemStackLayout.Width  / 2) - (frLayer.Width / 2)), // xConstraint
-				Constraint.RelativeToParent(parent => (itemStackLayout.Height / 2) - (frLayer.Height / 2)), // yConstrain
-                Constraint.RelativeToParent(parent => Math.Min(itemStackLayout.Width,itemStackLayout.Height) / 4), // widthConstraint
-				Constraint.RelativeToParent(parent => Math.Min(itemStackLayout.Width,itemStackLayout.Height) / 4) // heightConstraint
-			);
-		}
+            relativeLayout.Children.Add(frLayer,
+              Constraint.RelativeToParent(parent => (itemStackLayout.Width  / 2) - (frLayer.Width / 2)), // xConstraint
+              Constraint.RelativeToParent(parent => (itemStackLayout.Height / 2) - (frLayer.Height / 2)), // yConstrain
+                         Constraint.RelativeToParent(parent => Math.Min(itemStackLayout.Width,itemStackLayout.Height) / 4), // widthConstraint
+              Constraint.RelativeToParent(parent => Math.Min(itemStackLayout.Width,itemStackLayout.Height) / 4) // heightConstraint
+            );
+        }
 
 		async void Handle_SearchClicked(object sender, System.EventArgs e)
 		{
+            //GoogleAnalytics.Current.Tracker.SendView("MaiinPage");
+            //GoogleAnalytics.Current.Tracker.SendEvent("Category", "Action", "Label", 0);
+
             string keyword;
             AmazonBookSearch.SearchType searchType;
             if(bSearchTitle){
