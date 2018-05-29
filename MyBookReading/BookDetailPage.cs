@@ -24,7 +24,7 @@ namespace MyBookReading
 		public BookDetailPage(BookShelf bookShelf, Book book, bool isRegist)
         {
             //GA->
-            //詳細ページ表示してAmazonページをみる割合を検証する()
+            //詳細ページ表示してAmazonページをみる割合を検証する
             GoogleAnalytics.Current.Tracker.SendView("BookDetailPage");
             //GA<-
 
@@ -145,7 +145,7 @@ namespace MyBookReading
                 if (Book.AmazonDetailPageURL != null)
                 {
                     //GA->
-                    //詳細ページ表示してAmazonページをみる割合を検証する(図書館がない場合高い)
+                    //詳細ページ表示してAmazonページをみる割合を検証する(図書館がない場合高いか？)
                     bool isLibraryBook = false; //図書館に蔵書がある場合true
                     var result = CalilSearch.GetFirstResultBook();
                     if(result != null)
@@ -278,7 +278,7 @@ namespace MyBookReading
                 if (item != null && item.ReserveUrl != null)
                 {
                     //GA->
-                    //詳細ページ表示して図書館予約ページをみる割合を検証する()
+                    //詳細ページ表示して図書館予約ページをみる割合を検証する
                     GoogleAnalytics.Current.Tracker.SendEvent("BookDetailPage", "OpenUrl - LibraryReserve" );
                     //GA<-
 

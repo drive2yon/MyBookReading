@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using MyBookReading.Model;
+using MyBookReading.Web;
 using Newtonsoft.Json;
+using Plugin.GoogleAnalytics;
 using Xamarin.Forms;
 
 namespace MyBookReading
@@ -66,6 +68,11 @@ namespace MyBookReading
         Button importButton;
         public SettingPage()
         {
+            //GA->
+            //設定ページ表示してお問い合わせする人の割合を計測する
+            GoogleAnalytics.Current.Tracker.SendView("SettingPage");
+            //GA<-
+
             BindingContext = new CheckTargetLibrarys();
 
             this.Title = "設定";
@@ -77,6 +84,18 @@ namespace MyBookReading
                 }
             };
 
+            //図書館追加とリスト表示
+            var libraryCommentLabel = new Label
+            {
+                Text = "図書館の設定   (最大 5 件まで登録可能)",
+                Style = labelStyleDetailContent,
+            };
+
+            var tgr = new TapGestureRecognizer();
+            tgr.Tapped += (sender, e) => OnLabelClicked(sender, e);
+            libraryCommentLabel.GestureRecognizers.Add(tgr);
+
+
             var registLibraryButton = new Button
             {
                 Text = "図書館を登録する",
@@ -85,8 +104,6 @@ namespace MyBookReading
             {
                 Navigation.PushAsync(new SelectPrefecturePage());
             };
-
-
 
 			libraryListView = new ListView
 			{
@@ -104,19 +121,31 @@ namespace MyBookReading
                 ((ListView)sender).SelectedItem = null;
             };
 
+
+            //お問い合わせボタン
+            var requestFormLabel = new Label
+            {
+                Text = "質問や改善要望の受付(どんなフィードバックも歓迎)",
+                Style = labelStyleDetailContent,
+            };
+            var requestFormButton = new Button
+            {
+                Text = "お問い合わせフォームへ移動",
+            };
+            requestFormButton.Clicked += (sender, e) =>
+            {
+                //GA->
+                //設定ページ表示してお問い合わせする人の割合を計測する
+                GoogleAnalytics.Current.Tracker.SendEvent("SettingPage", "RequestForm");
+                //GA<-
+
+                DependencyService.Get<IWebBrowserService>().Open(new Uri("https://docs.google.com/forms/d/e/1FAIpQLSfeIr1kPfVb87bbIVZX9pgOW_6ks6Wll2zOg-PjjRlAyVmByQ/viewform?usp=sf_link"));
+            };
+
             CrateExportView(labelStyleDetailContent);
 
 
 
-            var libraryCommentLabel = new Label
-            {
-                Text = "図書館の設定   (最大 5 件まで登録可能)",
-                Style = labelStyleDetailContent,
-            };
-
-            var tgr = new TapGestureRecognizer();
-            tgr.Tapped += (sender, e) => OnLabelClicked(sender, e);
-            libraryCommentLabel.GestureRecognizers.Add(tgr);
 
 			var layout = new StackLayout
 			{
@@ -125,6 +154,9 @@ namespace MyBookReading
                     libraryCommentLabel,    
                     registLibraryButton,
                     libraryListView,
+
+                    requestFormLabel,
+                    requestFormButton,
 
                     exportLabel,
                     exportButton,
