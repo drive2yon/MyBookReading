@@ -4,6 +4,7 @@ using MyBookReading.Model;
 using Xamarin.Forms;
 using System.Linq;
 using MyBookReading.ViewModel;
+using Plugin.GoogleAnalytics;
 
 namespace MyBookReading
 {
@@ -97,6 +98,12 @@ namespace MyBookReading
                             await DisplayAlert("図書館の登録", "6件以上は登録できません", "OK");
                             return;
                         }
+                        //GA->
+                        //図書館を仮想的に利用して膨大な蔵書を育てる人が多い事の検証。図書館追加することを検証する
+                        int libraryNum = targetLibrarys.Librarys.Count() + 1;
+                        GoogleAnalytics.Current.Tracker.SendEvent("SelectLibraryPage", "AddLibrary", libraryNum.ToString());
+                        //GA<-
+
                         item.UpdateStatus(true);
                         //図書館をDBに登録する
                         foreach (var keyValuePair in systemIdLibraryTable)

@@ -4,6 +4,7 @@ using System.Linq;
 using MyBookReading.Model;
 using MyBookReading.ViewModel;
 using MyBookReading.Web;
+using Plugin.GoogleAnalytics;
 using Xamarin.Forms;
 
 namespace MyBookReading
@@ -22,6 +23,11 @@ namespace MyBookReading
 
 		public BookDetailPage(BookShelf bookShelf, Book book, bool isRegist)
         {
+            //GA->
+            //詳細ページ表示してAmazonページをみる割合を検証する()
+            GoogleAnalytics.Current.Tracker.SendView("BookDetailPage");
+            //GA<-
+
             this.Book = book;
 			CalilSearch = new SearchResultVM { BookResultList = GetSearchResultBookList(this.Book) };
 
@@ -34,6 +40,10 @@ namespace MyBookReading
 					{
 						string readingStatus = SwitchReading.IsToggled ? "既読" : "未読";
 						bookShelf.SaveBook(book, readingStatus, EntryNote.Text);
+                        //GA->
+                        //膨大な蔵書を育てる人が多い事の検証。蔵書追加頻度を知りたい
+                        GoogleAnalytics.Current.Tracker.SendEvent("BookDetailPage", "AddBook", book.Title);
+                        //GA<-
 					})
 				});
             }
@@ -46,6 +56,10 @@ namespace MyBookReading
 					{
 						string readingStatus = SwitchReading.IsToggled ? "既読" : "未読";
 						bookShelf.SaveBook(book, readingStatus, EntryNote.Text);
+                        //GA->
+                        //膨大な蔵書を育てる人が多い事の検証。蔵書の更新頻度を知りたい
+                        GoogleAnalytics.Current.Tracker.SendEvent("BookDetailPage", "UpdateBook", book.Title);
+                        //GA<-
 					})
 				});
 				ToolbarItems.Add(new ToolbarItem
@@ -130,6 +144,17 @@ namespace MyBookReading
             {
                 if (Book.AmazonDetailPageURL != null)
                 {
+                    //GA->
+                    //詳細ページ表示してAmazonページをみる割合を検証する(図書館がない場合高い)
+                    bool isLibraryBook = false; //図書館に蔵書がある場合true
+                    var result = CalilSearch.GetFirstResultBook();
+                    if(result != null)
+                    {
+                        isLibraryBook = result.IsLibraryBook;
+                    }
+                    GoogleAnalytics.Current.Tracker.SendEvent("BookDetailPage", "OpenUrl - Amazon", isLibraryBook?"図書館蔵書あり":"図書館蔵書なし");
+                    //GA<-
+                        
                     DependencyService.Get<IWebBrowserService>().Open(new Uri(Book.AmazonDetailPageURL));
                 }
             };
@@ -252,6 +277,11 @@ namespace MyBookReading
                 var item = e.SelectedItem as CalilStatus;
                 if (item != null && item.ReserveUrl != null)
                 {
+                    //GA->
+                    //詳細ページ表示して図書館予約ページをみる割合を検証する()
+                    GoogleAnalytics.Current.Tracker.SendEvent("BookDetailPage", "OpenUrl - LibraryReserve" );
+                    //GA<-
+
                     DependencyService.Get<IWebBrowserService>().Open(new Uri(item.ReserveUrl));
                 }
             };

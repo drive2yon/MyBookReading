@@ -4,6 +4,7 @@ using System.IO;
 using System.Net;
 using System.Threading.Tasks;
 using System.Xml.Linq;
+using Plugin.GoogleAnalytics;
 
 namespace MyBookReading
 {
@@ -34,6 +35,12 @@ namespace MyBookReading
 
         public async Task<bool> Search(SearchType searchType, string keyword, ObservableCollection<Book> booksResult)
         {
+            //GA->
+            //ユーザはどのくらいの頻度で検索しているか検証する
+            //検索結果がたくさんある場合どのくらい表示するか(２ページ目以降も検索結果を表示するか)検証する
+            GoogleAnalytics.Current.Tracker.SendEvent("AmazonBookSearch", "Search()", keyword, RequestPageIdx);
+            //GA<-
+
 			//最大10ページまでしか検索できない仕様とする
 			if (RequestPageIdx >= 10)
 			{
@@ -47,8 +54,18 @@ namespace MyBookReading
 			string url = makeRequestURL(searchType, keyword, RequestPageIdx);
             RequestPageIdx++;
 			System.Diagnostics.Debug.WriteLine(url);
+
             int retryCount = 0;
-			return await VisitUrl(url, booksResult, retryCount);
+            bool ret = await VisitUrl(url, booksResult, retryCount);
+            if(ret == false)
+            {
+                //GA->
+                //検索の失敗率を明らかにして、改善が必要か検証する
+                GoogleAnalytics.Current.Tracker.SendEvent("AmazonBookSearch", "Search()-Failed", keyword, RequestPageIdx);
+                //GA<-
+            }
+
+            return ret;
 		}
 
         /// <summary>
@@ -267,6 +284,10 @@ namespace MyBookReading
                     if(retryCount >= RETRY_MAX)
                     {
                         ret = false;
+                        //GA->
+                        //検索の失敗率を明らかにする - リトライエラー
+                        GoogleAnalytics.Current.Tracker.SendEvent("AmazonBookSearch", "VisitUrl()", "RETRY_MAX - error", retryCount);
+                        //GA<-
                     }
                     else
                     {
@@ -276,6 +297,10 @@ namespace MyBookReading
                 }else{
 					System.Diagnostics.Debug.WriteLine(exception.ToString());
                     ret = false;
+                    //GA->
+                    //検索の失敗率を明らかにする - その他のエラー
+                    GoogleAnalytics.Current.Tracker.SendException("VisitUrl():" + exception.ToString(), false);
+                    //GA<-
 				}
             }
             return ret;

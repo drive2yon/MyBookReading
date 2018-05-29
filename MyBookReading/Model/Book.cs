@@ -44,6 +44,11 @@ namespace MyBookReading
             return books.Count() != 0;
         }
 
+        public int GetBookCount()
+        {
+            return _realm.All<Book>().Count();
+        }
+
 		/// <summary>
 		/// 本を本棚に登録する。登録済みの場合は上書き更新する。
 		/// </summary>

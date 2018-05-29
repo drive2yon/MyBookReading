@@ -5,7 +5,6 @@ using System.Reflection;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Xamarin.Forms;
-//using Plugin.GoogleAnalytics;
 
 namespace MyBookReading
 {
@@ -51,9 +50,6 @@ namespace MyBookReading
 
 		async void Handle_SearchClicked(object sender, System.EventArgs e)
 		{
-            //GoogleAnalytics.Current.Tracker.SendView("MaiinPage");
-            //GoogleAnalytics.Current.Tracker.SendEvent("Category", "Action", "Label", 0);
-
             string keyword;
             AmazonBookSearch.SearchType searchType;
             if(bSearchTitle){

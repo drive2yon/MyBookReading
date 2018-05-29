@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using Karamem0.LinqToCalil;
 using MyBookReading.Model;
+using Plugin.GoogleAnalytics;
 using Xamarin.Forms;
 
 namespace MyBookReading.ViewModel
@@ -368,6 +369,10 @@ namespace MyBookReading.ViewModel
 					bookList.Append("," + book.ISBN);
 				}
 			}
+            //GA->
+            //Calil検索の使用状況を検証する
+            GoogleAnalytics.Current.Tracker.SendEvent("CalilSearch", "CheckBooks()", "books:" + books.Count().ToString() + " librarys:" + Librarys.Librarys.Count().ToString());
+            //GA<-            
 
 			string isbnList = bookList.ToString();
 
@@ -412,6 +417,10 @@ namespace MyBookReading.ViewModel
 			catch (Exception exception)
 			{
 				System.Diagnostics.Debug.WriteLine(exception.ToString());
+                //GA->
+                //Calil検索の失敗率を検証する
+                GoogleAnalytics.Current.Tracker.SendEvent("CalilSearch", "CheckBooks() - Failed", exception.ToString() );
+                //GA<-            
 				this.UpdateStatus("図書館の蔵書が失敗しました");
 			}
 		}

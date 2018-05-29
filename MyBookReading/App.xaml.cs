@@ -1,4 +1,5 @@
-﻿using Xamarin.Forms;
+﻿using Plugin.GoogleAnalytics;
+using Xamarin.Forms;
 
 namespace MyBookReading
 {
@@ -22,6 +23,14 @@ namespace MyBookReading
                     new Setter { Property = Label.LineBreakModeProperty, Value = LineBreakMode.MiddleTruncation }, 
             	}
             };
+
+            GoogleAnalytics.Current.Config.TrackingId = "UA-119889066-1";
+            GoogleAnalytics.Current.Config.AppId = "com.rydeenworks.mybookreading";
+            GoogleAnalytics.Current.Config.AppName = "図書館ほんだな";
+            GoogleAnalytics.Current.Config.AppVersion = "1.1";
+            GoogleAnalytics.Current.Config.ReportUncaughtExceptions = true;
+            GoogleAnalytics.Current.InitTracker();
+
 
 			Application.Current.Resources.Add("FooterLabelStyle", g_footerLabelStyle);
 

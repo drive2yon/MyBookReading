@@ -44,9 +44,17 @@ namespace MyBookReading
 					await Navigation.PushAsync(new BookDetailPage(bookShelf, item, isRegist:true));
 				}
 			};
-
-            //GoogleAnalytics
-            //GoogleAnalytics.Current.Tracker.SendEvent("MyBookListPage - InitList", "");
 		}
-   }
+
+        protected override void OnAppearing()
+        {
+            base.OnAppearing();
+
+            //GA->
+            //蔵書が膨大であること。リストをよく参照すること。を検証する。
+            GoogleAnalytics.Current.Tracker.SendEvent("MyBookListPage", "OnAppearing()", "", bookShelf.GetBookCount());
+            //GA<-
+        }
+
+    }
 }
