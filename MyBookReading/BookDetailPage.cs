@@ -20,6 +20,7 @@ namespace MyBookReading
         Entry EntryNote;
         Book Book;
         Thickness Margin = new Thickness(0);
+        Label LabelFooter;
 
 		public BookDetailPage(BookShelf bookShelf, Book book, bool isRegist)
         {
@@ -44,6 +45,7 @@ namespace MyBookReading
                         //膨大な蔵書を育てる人が多い事の検証。蔵書追加頻度を知りたい
                         GoogleAnalytics.Current.Tracker.SendEvent("BookDetailPage", "AddBook", book.Title);
                         //GA<-
+                        LabelFooter.Text = "本を登録しました [" + DateTime.Now.ToString() + "]";
 					})
 				});
             }
@@ -60,6 +62,7 @@ namespace MyBookReading
                         //膨大な蔵書を育てる人が多い事の検証。蔵書の更新頻度を知りたい
                         GoogleAnalytics.Current.Tracker.SendEvent("BookDetailPage", "UpdateBook", book.Title);
                         //GA<-
+                        LabelFooter.Text = "本を登録しました [" + DateTime.Now.ToString() + "]";
 					})
 				});
 				ToolbarItems.Add(new ToolbarItem
@@ -85,6 +88,7 @@ namespace MyBookReading
                 BindingContext = CalilSearch,
             };
             labelFooter.SetBinding(Label.TextProperty, "Status");
+            LabelFooter = labelFooter;
 
             ScrollView scrollView = new ScrollView
             {

@@ -78,9 +78,18 @@ namespace MyBookReading
             }
             else
             {
-				await Navigation.PushAsync( new BookSearchResultPage(this.bookShelf, search, books) );
-				cvLayer.IsVisible = frLayer.IsVisible = false;
-				return;
+                if(books.Count == 0)
+                {
+                    cvLayer.IsVisible = frLayer.IsVisible = false;
+                    await DisplayAlert("該当書籍なし", "検索ワードを変えてください", "OK");
+                    return;
+                }
+                else
+                {
+                    await Navigation.PushAsync(new BookSearchResultPage(this.bookShelf, search, books));
+                    cvLayer.IsVisible = frLayer.IsVisible = false;
+                    return;
+                }
 			}
 		}
 
