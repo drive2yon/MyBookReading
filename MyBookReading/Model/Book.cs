@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Realms;
 
@@ -90,10 +91,13 @@ namespace MyBookReading
         {
             using (var trans = _realm.BeginWrite())
             {
-                _realm.RemoveAll<Book>();
                 foreach (Book book in books)
                 {
-                    _realm.Add(book);
+                    //未登録の本のみ登録する
+                    if (!IsRegistBook(book))
+                    {
+                        _realm.Add(book);
+                    }
                 }
                 trans.Commit();
             }
