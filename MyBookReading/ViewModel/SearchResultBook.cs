@@ -351,9 +351,9 @@ namespace MyBookReading.ViewModel
 		{
 			CalilCredentials CalilKey = CalilCredentials.LoadCredentialsFile();
 			string systemid = Librarys.GetSystemIDList();
-			if (systemid == null) //図書館が未設定の場合は、蔵書検索を行わない
+            if (systemid == null || systemid.Length == 0) //図書館が未設定の場合は、蔵書検索を行わない
 			{
-				this.UpdateStatus("表示完了");
+                this.UpdateStatus("表示完了(図書館未設定)");
 				return;
 			}
 
